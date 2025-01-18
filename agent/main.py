@@ -10,6 +10,14 @@ import yt_dlp
 import webvtt
 import io
 import numpy as np
+from fastapi import FastAPI
+from pydantic import BaseModel
+import json
+
+app = FastAPI()
+
+class CompanyRequest(BaseModel):
+    company_name: str
 
 
 @tool
@@ -249,6 +257,7 @@ def format_log_to_messages(intermediate_steps):
     return thoughts
 
 
+# Initialize agent components
 load_dotenv()
 llm = ChatGoogleGenerativeAI(
     model="gemini-1.5-flash",
@@ -331,22 +340,13 @@ agent_executor = AgentExecutor(
     handle_parsing_errors=True,
 )
 
-chat_history = []
-agent_scratchpad = format_log_to_messages([])
-while True:
-    message = input("> ")
-    if message == "exit":
-        break
+@app.post("/analyze_company")
+async def analyze_company(request: CompanyRequest):
     result = agent_executor.invoke(
         {
-            "input": message,
-            "chat_history": chat_history,
+            "input": request.company_name,
+            "chat_history": [],
+            "agent_scratchpad": format_log_to_messages([]),
         }
     )
-    print(result["output"])
-    chat_history.extend(
-        [
-            HumanMessage(content=message),
-            AIMessage(content=result["output"]),
-        ]
-    )
+    return json.loads(result["output"].replace("```json", "").replace("```", "").strip("\"").strip("'").replace("\\n", ""))
