@@ -9,6 +9,7 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 import yt_dlp
 import webvtt
 import io
+import numpy as np
 
 
 @tool
@@ -16,7 +17,7 @@ def scrape_url(url: str) -> str:
     """
     Returns data in HTML by scraping the url. Provide full link: https://{domain}/{path(s)}
     """
-    url = url.strip()
+    url = url.strip().replace("\n", "").replace("'", "").replace('"', "")
     print(f"Requesting URL: {url}")
     response = requests.get(url)
     return response.content
@@ -27,6 +28,7 @@ def scrape_yt(url: str) -> str:
     """
     Get description and transcript for any youtube video. Provide full link: https://youtube.com/watch?v={videoId}
     """
+    url = url.strip().replace("'", "").replace('"', "").replace("\n", "")
     print(f"Scraping YouTube: {url}")
 
     ydl_opts = {
@@ -37,44 +39,98 @@ def scrape_yt(url: str) -> str:
         "writeinfojson": False,
     }
 
-    try:
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(url, download=False)
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        output = {
+            "Description": "",
+            "Sponsor Transcript": "",
+            "Sponsorship Retention Ratio": 1,
+            "Comments": [],
+        }
+        info = ydl.extract_info(url, download=False)
+        output["Description"] = info.get("description", "No description available.")
 
-            description = info.get("description", "No description available.")
+        # Get English subtitles
+        en_subtitle = info.get("requested_subtitles", {}).get("en") or info.get(
+            "requested_subtitles", {}
+        ).get("en-auto")
 
-            subtitles = info.get("requested_subtitles", {})
-            en_subtitle = subtitles.get("en") or subtitles.get("en-auto")
-            transcript = ""
+        # Get sponsor segments
+        sponsor_segments = []
+        response = requests.get(
+            f"https://sponsor.ajay.app/api/skipSegments?videoID={info['id']}&category=sponsor"
+        )
+        if response.status_code == 200:
+            sponsor_segments = response.json()
 
-            if en_subtitle:
-                subtitle_url = en_subtitle["url"]
-                subtitle_content = ydl.urlopen(subtitle_url).read().decode("utf-8")
+        # Get retention data
+        retention_data = info.get("heatmap")
 
-                vtt = webvtt.read_buffer(io.StringIO(subtitle_content))
-                lines = []
-                for line in vtt:
-                    lines.extend(line.text.strip().splitlines())
+        # Calculate Sponsorship Retention Ratio. It is the median of the sponsor retention values divided by the median of the non-sponsor retention values.
+        if retention_data:
+            sponsor_retention = []
+            non_sponsor_retention = []
+            for segment in sponsor_segments:
+                start, end = segment["segment"]
+                for retention in retention_data:
+                    if (
+                        start <= retention["start_time"]
+                        and end >= retention["end_time"]
+                    ):
+                        sponsor_retention.append(retention["value"])
+                    else:
+                        non_sponsor_retention.append(retention["value"])
+            output["Sponsorship Retention Ratio"] = round(
+                (np.median(sponsor_retention) / np.median(non_sponsor_retention)), 4
+            )
+        else:
+            output["Sponsorship Retention Ratio"] = -1
 
-                seen = set()
-                for line in lines:
-                    if line not in seen:
-                        transcript += " " + line
-                        seen.add(line)
-            else:
-                transcript = "No English subtitles available."
+        # Process sponsor transcript from subtitles
+        if en_subtitle and sponsor_segments:
+            subtitle_url = en_subtitle["url"]
+            subtitle_content = ydl.urlopen(subtitle_url).read().decode("utf-8")
+            vtt = webvtt.read_buffer(io.StringIO(subtitle_content))
 
-            output = f"""Transcript:         
-        {transcript}
-        ---------------------------------------
-        ---------------------------------------
-        ---------------------------------------
-        Description:
-        {description}
-        """
-    except:
-        return "Some error occured when trying to scrape this youtube video"
-    return output
+            seen_lines = set()
+            for segment in sponsor_segments:
+                start, end = segment["segment"]
+                for caption in vtt:
+                    if (
+                        start <= caption.start_in_seconds <= end
+                        or start <= caption.end_in_seconds <= end
+                    ):
+                        for line in caption.text.strip().splitlines():
+                            if line not in seen_lines:
+                                output["Sponsor Transcript"] += line + " "
+                                seen_lines.add(line)
+        else:
+            output["Sponsor Transcript"] = (
+                "No sponsor segments or English subtitles available."
+            )
+
+        # Get comments
+        video_id = url.split("=")[-1]
+        params = {
+            "part": "snippet",
+            "videoId": video_id,
+            "maxResults": "50",
+            "textFormat": "plainText",
+            "key": os.environ.get("COMMENTS_API_KEY"),
+        }
+
+        response = requests.get(
+            "https://www.googleapis.com/youtube/v3/commentThreads",
+            params=params,
+            headers={"Referer": "https://ytcomment.kmcat.uk/"},
+        )
+
+        # Extract comments
+        output["Comments"] = [
+            comment["snippet"]["topLevelComment"]["snippet"]["textDisplay"].strip()
+            for comment in response.json().get("items", [])
+        ]
+
+        return output
 
 
 @tool
@@ -82,7 +138,7 @@ def scrape_reddit(subreddit: str) -> dict:
     """
     Extract top 10 posts from a subreddit with its top 10 comments using the subreddit name. Only provide subreddit name without r/
     """
-    subreddit = subreddit.strip().replace("\n", "")
+    subreddit = subreddit.strip().replace("\n", "").replace("'", "").replace('"', "")
     print(f"Scraping Subreddit: {subreddit}")
     url = f"https://www.reddit.com/r/{subreddit}/top/.json?t=all"
 
@@ -146,6 +202,9 @@ def search_youtube(search_query: str) -> dict:
     """
     Search for a query on YouTube and return the top 5 results as a dictionary.
     """
+    search_query = (
+        search_query.strip().replace("\n", "").replace("'", "").replace('"', "")
+    )
     print(f"Searching YouTube: {search_query}")
     ydl_opts = {
         "quiet": True,
