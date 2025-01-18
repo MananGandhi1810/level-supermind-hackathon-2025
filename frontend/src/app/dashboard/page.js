@@ -1,57 +1,110 @@
 "use client";
 
-import { useUser } from "@auth0/nextjs-auth0/client";
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import Image from "next/image";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState, useEffect } from "react";
+import { Plus } from "lucide-react";
+import Link from "next/link";
+import CreateProjectCard from "@/components/CreateProjectCard";
 
-export default function DashboardPage() {
-  const { user, isLoading } = useUser();
-  const router = useRouter();
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { useUser } from "@auth0/nextjs-auth0/client";
+
+export default function Dashboard() {
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const { user } = useUser();
+  console.log(user);
+  const userId = user?.sid;
 
   useEffect(() => {
-    if (!user && !isLoading) {
-      router.push("/login");
-    }
-  }, [user, isLoading, router]);
+    const fetchProjects = async () => {
+      try {
+        const response = await fetch(`/api/projects/get?userId=${userId}`);
+        if (!response.ok) {
+          throw new Error("Failed to fetch projects");
+        }
+        const data = await response.json();
+        if (data.user && data.user.projects) {
+          setProjects(data.user.projects); // Set the fetched projects
+        } else {
+          setError("No projects found for the user.");
+        }
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  if (isLoading) return <div>Loading...</div>;
+    fetchProjects();
+  }, [userId]);
 
-  if (!user) return null;
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+  if (!user) {
+    return <>Errrorbroskie</>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-gray-100 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md bg-gray-800 border-gray-700">
-        <CardHeader>
-          <CardTitle className="text-2xl font-bold text-center text-white">
-            Welcome, {user.name}!
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-col items-center gap-6">
-          <div className="flex flex-col items-center gap-4">
-            <div className="relative w-24 h-24 rounded-full overflow-hidden">
-              <img
-                src={user.picture || "/placeholder.svg"}
-                alt={user.name || "User"}
-                className="object-cover"
-              />
-            </div>
-            <div className="text-center">
-              <h2 className="text-xl font-semibold text-white">{user.name}</h2>
-              <p className="text-gray-400">{user.email}</p>
-            </div>
+    <div className="min-h-screen bg-background p-6">
+      <div className="mx-auto max-w-7xl space-y-8">
+        {/* Recent Projects Section */}
+        <section className="space-y-6">
+          <h2 className="text-3xl font-semibold tracking-tight">
+            Recent projects
+          </h2>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {/* Create Project Card */}
+            <CreateProjectCard />
+            {/* Project Cards */}
+            {projects.slice(0, 5).map((project) => (
+              <Card key={project.id} className="flex flex-col">
+                <CardHeader className="flex-1">
+                  <CardTitle className="text-xl">{project.name}</CardTitle>
+                </CardHeader>
+                <CardFooter className="border-t bg-muted/50 px-6 py-4">
+                  <p className="text-sm text-muted-foreground">{project.id}</p>
+                </CardFooter>
+              </Card>
+            ))}
           </div>
-          <Button
-            onClick={() => router.push("/logout")}
-            variant="outline"
-            className="text-gray-300 border-gray-600 hover:bg-gray-700"
-          >
-            Log Out
-          </Button>
-        </CardContent>
-      </Card>
+        </section>
+
+        <Separator />
+
+        {/* All Projects Section */}
+        <section className="space-y-6">
+          <h2 className="text-3xl font-semibold tracking-tight">
+            All Firebase projects
+          </h2>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {projects.map((project) => (
+              <Card key={project.id} className="flex flex-col">
+                <CardHeader className="flex-1">
+                  <CardTitle className="text-xl">{project.name}</CardTitle>
+                </CardHeader>
+                <CardFooter className="border-t bg-muted/50 px-6 py-4">
+                  <p className="text-sm text-muted-foreground">{project.id}</p>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        </section>
+      </div>
     </div>
   );
 }
