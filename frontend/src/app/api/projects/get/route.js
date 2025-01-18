@@ -14,9 +14,11 @@ async function getAstraClient() {
   return astraClient;
 }
 
-export async function GET(req) {
+export async function GET(request) {
   try {
-    const { userId } = req.query; // Get userId from query parameters
+    const searchParams = request.nextUrl.searchParams;
+    const userId = searchParams.get("userId");
+    console.log(userId);
 
     if (!userId) {
       return NextResponse.json(
