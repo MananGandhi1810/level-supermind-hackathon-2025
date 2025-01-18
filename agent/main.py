@@ -12,7 +12,7 @@ import io
 
 
 @tool
-def get_url_data(url: str) -> str:
+def scrape_url(url: str) -> str:
     """
     Returns data in HTML by scraping the url. Provide full link: https://{domain}/{path(s)}
     """
@@ -142,38 +142,42 @@ def scrape_reddit(subreddit: str) -> dict:
 
 
 @tool
-def search_youtube(search_query: str) -> list:
+def search_youtube(search_query: str) -> dict:
     """
-    Search YouTube for videos based on the search query. Provide only search query
+    Search for a query on YouTube and return the top 5 results as a dictionary.
     """
-    print(f"Searching YouTube with query: {search_query}")
-
-    params = {
-        "part": "snippet",
-        "maxResults": 5,
-        "q": search_query,
-        "key": os.environ.get("YOUTUBE_API_KEY"),
-        "type": "video",
-        "relevanceLanguage": "en",
+    print(f"Searching YouTube: {search_query}")
+    ydl_opts = {
+        "quiet": True,
+        "no_warnings": True,
+        "extract_flat": "in_playlist",
+        "geo_bypass": True,
+        "noplaylist": True,
+        "postprocessor_args": ["-match_lang", "en"],
     }
+    try:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            # Search for the query on YouTube
+            result = ydl.extract_info(f"ytsearch50:{search_query}", download=False)
+            videos = result.get("entries", [])
 
-    response = requests.get(
-        "https://www.googleapis.com/youtube/v3/search",
-        params=params,
-    )
+            # Sort the videos based on view count and get the top 5
+            sorted_videos = sorted(
+                videos, key=lambda x: x.get("view_count", 0), reverse=True
+            )
 
-    # Get the 5 titles and video IDs
-    response = response.json()
-    videos = []
+            # Create a dictionary for the top 5 videos
+            top_videos = {
+                i: {
+                    "title": video.get("title", "Unknown"),
+                    "url": video.get("url", ""),
+                }
+                for i, video in enumerate(sorted_videos[:5])
+            }
 
-    for item in response["items"]:
-        video = {
-            "title": item["snippet"]["title"],
-            "url": f"https://www.youtube.com/watch?v={item["id"]["videoId"]}",
-        }
-        videos.append(video)
-
-    return videos
+            return top_videos
+    except Exception as e:
+        return {"error": str(e)}
 
 
 def format_log_to_messages(intermediate_steps):
@@ -191,12 +195,7 @@ llm = ChatGoogleGenerativeAI(
     model="gemini-1.5-flash",
     api_key=os.environ.get("GEMINI_API_KEY"),
 )
-tools = [
-    get_url_data,
-    scrape_yt,
-    search_youtube,
-    scrape_reddit,
-]
+tools = [scrape_url, scrape_yt, search_youtube, scrape_reddit]
 prompt = ChatPromptTemplate.from_messages(
     [
         (
@@ -205,19 +204,18 @@ prompt = ChatPromptTemplate.from_messages(
 Answer the following questions as best you can. You have access to the following tools:
 {tools}
 
-USE the get_url_data tool ot search for any URL
+USE the scrape_url tool ot search for any URL
 USE the scrape_yt tool if you need to get the description and transcript of a youtube video
 USE the scrape_reddit tool to get data from subreddits
 USE the search_youtube tool to get a list of youtube videos related to the search query
-DO NOT USE get_url_data to search for youtube videos at all or else the 
+DO NOT USE scrape_url to search for youtube videos at all or else the 
 DO NOT auto-generate youtube video IDs
 DO NOT call the search_youtube tool more than 2 times
 
-You are an ad-bot which can process data about a company based on the reddit reviews, youtube video description and transcript and the trustpilot reviews
-ONLY RESPOND IN JSON:
-reddit: provide analysis using reddit,
-youtube: provide youtube video links (compulsory) sponsored by the company along with an analysis,
-trustpilot: provide analysis of the reviews from trustpilot,
+You are an ad-bot which can process data about a company based on the reddit reviews, youtube video description and transcript and the trustpilot reviews.
+You need to search for advertisements on youtube sponsored by the company, and get relevant results and insights
+Search for 2 company-created advertisements/commercials, and 2 sponsored videos by the company
+Generate an advertisement story-line and a hook to create an advertisement for a company in the similar field
 
 Always give a verbose response to the user
 
@@ -226,6 +224,8 @@ To get data about a company sponsoring a video:
 2. Check the description and transcript for the resultant videos, and if they actually sponsor the video using the scrape_yt tool
 3. If the video is sponsored by the company, redo the process if multiple results are required. If not, check back for another video
 ONLY follow this process and no other way
+
+Always search *YouTube, Reddit, and TrustPilot* before responding to the user
 
 SEARCH GOOGLE IF YOU NEED ANY HELP
 
@@ -245,7 +245,12 @@ Observation: the result of the action
 
 Thought: I now know the final answer
 
-Final Answer: the final answer to the original input question
+Final Answer: the final answer to the original input question. The final output SHOULD be in JSON
+reddit: provide analysis using reddit,
+youtube: provide youtube video links (compulsory) sponsored by the company along with an analysis (at least 2 videos as a list),
+user_pain_points: provide user pain points related to the product based on user feedback
+trustpilot: provide analysis of the reviews from trustpilot
+ad_storyline: provide a storyline with a hook for the advertisement
 
 Begin!""",
         ),

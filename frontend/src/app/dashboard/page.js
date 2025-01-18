@@ -26,7 +26,7 @@ export default function Dashboard() {
   const userId = user?.sid;
 
   useEffect(() => {
-    const fetchProjects = async () => {
+    const fetchProjects = async (userId) => {
       try {
         const response = await fetch(`/api/projects/get?userId=${userId}`);
         if (!response.ok) {
@@ -44,8 +44,9 @@ export default function Dashboard() {
         setLoading(false);
       }
     };
-
-    fetchProjects();
+    if (userId) {
+      fetchProjects(userId);
+    }
   }, [userId]);
 
   if (loading) {
