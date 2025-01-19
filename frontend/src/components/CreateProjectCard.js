@@ -76,17 +76,19 @@ const CreateProjectCard = () => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Card className="flex flex-col border-dashed cursor-pointer hover:border-primary/50 transition-colors">
+        <Card className="flex flex-col border-2 border-dashed cursor-pointer hover:border-primary/50 transition-colors group">
           <CardHeader className="flex-1">
             <CardTitle>
               <div className="flex h-full flex-col items-center justify-center gap-4 py-8 text-center">
-                <Plus className="h-12 w-12 text-primary" />
-                <span className="text-xl text-primary">Create a project</span>
+                <Plus className="h-12 w-12 text-primary group-hover:text-accent transition-colors duration-150 ease-in-out" />
+                <span className="text-xl text-primary group-hover:text-accent transition-colors duration-150 ease-in-out">
+                  Create a project
+                </span>
               </div>
             </CardTitle>
           </CardHeader>
           <CardFooter className="border-t bg-muted/50 px-6 py-4">
-            <p className="text-sm text-muted-foreground hover:text-primary">
+            <p className="text-sm text-muted-foreground hover:text-primary group-hover:underline ">
               Explore a demo project
             </p>
           </CardFooter>
