@@ -1,6 +1,6 @@
 services:
   lsa-backend:
-    build: ./backend
+    image: ghcr.io/manangandhi1810/lsa-backend:latest
     container_name: lsa-backend
     restart: unless-stopped
     ports:
@@ -9,7 +9,7 @@ services:
       - .env
 
   lsa-frontend:
-    build: ./lrontend
+    image: ghcr.io/manangandhi1810/lsa-frontend:latest
     container_name: lsa-frontend
     restart: unless-stopped
     ports:
