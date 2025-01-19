@@ -18,9 +18,9 @@ async function getAstraClient() {
 export async function POST(req) {
   try {
     const body = await req.json();
-    const { userId, projectName, projectDescription, createdAt } = body;
+    const { userId, companyName, companyURL, createdAt } = body;
 
-    if (!userId || !projectName || !projectDescription || !createdAt) {
+    if (!userId || !companyName || !companyURL || !createdAt) {
       return NextResponse.json(
         {
           message:
@@ -36,15 +36,15 @@ export async function POST(req) {
       .collection("users");
 
     // Generate a unique project ID
-    const projectId = `${projectName
+    const companyId = `${companyName
       .toLowerCase()
       .replace(/\s+/g, "-")}-${Math.random().toString(36).substr(2, 5)}`;
 
     // Define the new project
-    const newProject = {
-      id: projectId,
-      name: projectName,
-      description: projectDescription,
+    const newCompany = {
+      id: companyId,
+      name: companyName,
+      url: companyURL,
       createdAt,
     };
 
@@ -54,19 +54,19 @@ export async function POST(req) {
 
     if (userExists) {
       // Append the new project to the user's `projects` array
-      const updatedProjects = [...(userExists.projects || []), newProject];
-      await usersCollection.update(userId, { projects: updatedProjects });
+      const updatedCompanies = [...(userExists.companies || []), newCompany];
+      await usersCollection.update(userId, { companies: updatedCompanies });
     } else {
       // Create a new user collection and add the project
       const userData = {
         id: userId,
-        projects: [newProject],
+        companies: [newCompany],
       };
       console.log(await usersCollection.create(userId, userData));
     }
 
     return NextResponse.json(
-      { message: "Project added successfully", project: newProject },
+      { message: "Company added successfully", company: newCompany },
       { status: 201 }
     );
   } catch (error) {

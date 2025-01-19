@@ -19,9 +19,9 @@ import { Card, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 const CreateProjectCard = () => {
   const { user } = useUser();
   const [isOpen, setIsOpen] = useState(false);
-  const [projectData, setProjectData] = useState({
+  const [companyData, setCompanyData] = useState({
     name: "",
-    description: "",
+    url: "",
   });
   const [isLoading, setIsLoading] = useState(false);
 
@@ -47,8 +47,8 @@ const CreateProjectCard = () => {
         },
         body: JSON.stringify({
           userId: user.sid, // User ID from Auth0
-          projectName: projectData.name,
-          projectDescription: projectData.description,
+          companyName: companyData.name,
+          companyURL: companyData.url,
           createdAt: new Date().toISOString(),
         }),
       });
@@ -63,11 +63,11 @@ const CreateProjectCard = () => {
 
       // Close dialog and reset form state
       setIsOpen(false);
-      setProjectData({ name: "", description: "" });
+      setCompanyData({ name: "", url: "" });
 
       // Refresh the projects list here if needed
     } catch (error) {
-      console.error("Error creating project:", error);
+      console.error("Error creating company:", error);
     } finally {
       setIsLoading(false);
     }
@@ -80,10 +80,8 @@ const CreateProjectCard = () => {
           <CardHeader className="flex-1">
             <CardTitle>
               <div className="flex h-full flex-col items-center justify-center gap-4 py-8 text-center">
-                <Plus className="h-12 w-12 text-primary group-hover:text-accent transition-colors duration-150 ease-in-out" />
-                <span className="text-xl text-primary group-hover:text-accent transition-colors duration-150 ease-in-out">
-                  Create a project
-                </span>
+                <Plus className="h-12 w-12 text-primary" />
+                <span className="text-xl text-primary">Add a company</span>
               </div>
             </CardTitle>
           </CardHeader>
@@ -96,45 +94,45 @@ const CreateProjectCard = () => {
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Create New Project</DialogTitle>
+          <DialogTitle>Add New company</DialogTitle>
           <DialogDescription>
-            Enter the details for your new project.
+            Enter the details for your company.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Project Name</Label>
+              <Label htmlFor="name">Company Name</Label>
               <Input
                 id="name"
                 type="text"
                 required
-                value={projectData.name}
+                value={companyData.name}
                 onChange={(e) =>
-                  setProjectData((prev) => ({ ...prev, name: e.target.value }))
+                  setCompanyData((prev) => ({ ...prev, name: e.target.value }))
                 }
-                placeholder="Enter project name"
+                placeholder="Enter company name"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="url">Company website URL</Label>
               <Input
-                id="description"
+                id="url"
                 type="text"
-                value={projectData.description}
+                value={companyData.url}
                 onChange={(e) =>
-                  setProjectData((prev) => ({
+                  setCompanyData((prev) => ({
                     ...prev,
-                    description: e.target.value,
+                    url: e.target.value,
                   }))
                 }
-                placeholder="Enter project description"
+                placeholder="Enter company URL"
               />
             </div>
           </div>
           <DialogFooter>
             <Button type="submit" disabled={isLoading}>
-              {isLoading ? "Creating..." : "Create Project"}
+              {isLoading ? "Adding..." : "Add company"}
             </Button>
           </DialogFooter>
         </form>
