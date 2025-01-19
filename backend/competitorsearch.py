@@ -103,6 +103,16 @@ competitorfinder_model = genai.GenerativeModel(
     model_name="gemini-2.0-flash-exp",
     system_instruction=competitorfinder_system_prompt,
     generation_config=structured_gemini_generation_config,
+    tools=[
+        genai.protos.Tool(
+            google_search_retrieval=genai.protos.GoogleSearchRetrieval(
+                dynamic_retrieval_config=genai.protos.DynamicRetrievalConfig(
+                    mode=genai.protos.DynamicRetrievalConfig.Mode.MODE_DYNAMIC,
+                    dynamic_threshold=0.5,
+                ),
+            ),
+        ),
+    ],
 )
 
 
