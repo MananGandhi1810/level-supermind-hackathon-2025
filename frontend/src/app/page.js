@@ -1,11 +1,23 @@
+"use client";
 import Video from "./components/video";
 import Slide from "./components/slide";
 import Lenis from "./components/lenis";
 import { AnimatedTestimonials } from "./components/animated-testimonials";
-
+import { useUser } from "@auth0/nextjs-auth0/client";
+import { useEffect } from "react";
 import { ChevronDown } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+  const { user } = useUser();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (user) {
+      router.push("/dashboard");
+    }
+  }, [user, router]);
+
   const testimonials = [
     {
       quote:

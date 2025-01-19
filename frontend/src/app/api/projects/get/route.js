@@ -38,7 +38,7 @@ export async function GET(request) {
     if (!userData) {
       const newUser = {
         id: userId,
-        projects: [],
+        companies: [],
         createdAt: new Date().toISOString(),
       };
 

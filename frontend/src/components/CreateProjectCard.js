@@ -1,5 +1,7 @@
+"use client";
+
 import React, { useState } from "react";
-import { Plus } from "lucide-react";
+import { Plus } from 'lucide-react';
 import { useUser } from "@auth0/nextjs-auth0/client";
 
 import {
@@ -15,7 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { WindIcon } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const CreateProjectCard = () => {
   const { user } = useUser();
@@ -25,14 +27,39 @@ const CreateProjectCard = () => {
     url: "",
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState({
+    name: "",
+    url: "",
+    general: "",
+  });
 
-  // Submit handler for project creation
+  const validateURL = (url) => {
+    const pattern = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
+    return pattern.test(url);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Reset errors
+    setErrors({ name: "", url: "", general: "" });
+
+    // Validate inputs
+    let hasErrors = false;
+    if (!companyData.name.trim()) {
+      setErrors((prev) => ({ ...prev, name: "Company name is required" }));
+      hasErrors = true;
+    }
+    if (companyData.url && !validateURL(companyData.url)) {
+      setErrors((prev) => ({ ...prev, url: "Please enter a valid URL" }));
+      hasErrors = true;
+    }
+
+    if (hasErrors) return;
+
     // Ensure user is logged in
     if (!user) {
-      console.error("No user found. Please log in.");
+      setErrors((prev) => ({ ...prev, general: "No user found. Please log in." }));
       return;
     }
 
@@ -67,10 +94,11 @@ const CreateProjectCard = () => {
       // Close dialog and reset form state
       setIsOpen(false);
       setCompanyData({ name: "", url: "" });
-
+      window.location.reload();
       // Refresh the projects list here if needed
     } catch (error) {
       console.error("Error creating company:", error);
+      setErrors((prev) => ({ ...prev, general: "Failed to create company. Please try again." }));
     } finally {
       setIsLoading(false);
     }
@@ -104,6 +132,11 @@ const CreateProjectCard = () => {
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="space-y-4 py-4">
+            {errors.general && (
+              <Alert variant="destructive">
+                <AlertDescription>{errors.general}</AlertDescription>
+              </Alert>
+            )}
             <div className="space-y-2">
               <Label htmlFor="name">Company Name</Label>
               <Input
@@ -116,6 +149,7 @@ const CreateProjectCard = () => {
                 }
                 placeholder="Enter company name"
               />
+              {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor="url">Company website URL</Label>
@@ -131,6 +165,7 @@ const CreateProjectCard = () => {
                 }
                 placeholder="Enter company URL"
               />
+              {errors.url && <p className="text-sm text-destructive">{errors.url}</p>}
             </div>
           </div>
           <DialogFooter>
