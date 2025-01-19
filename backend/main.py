@@ -9,6 +9,7 @@ import logging
 import traceback
 from dotenv import load_dotenv
 from firecrawl import FirecrawlApp
+from astrapy import DataAPIClient
 
 # Configure detailed logging
 logging.basicConfig(
@@ -23,12 +24,19 @@ logger = logging.getLogger(__name__)
 
 # Load environment variables
 load_dotenv()
-required_env_vars = ["GEMINI_KEY", "FIRECRAWL_KEY", "SERPAPI_KEY"]
+required_env_vars = ["GEMINI_KEY", "FIRECRAWL_KEY", "SERPAPI_KEY", "ASTRADB_KEY"]
 for var in required_env_vars:
     if not os.getenv(var):
         logger.critical(f"Missing required environment variable: {var}")
         raise EnvironmentError(f"Missing required environment variable: {var}")
 
+#Initialize AstraDB
+client = DataAPIClient(os.getenv("ASTRADB_KEY"))
+db = client.get_database_by_api_endpoint(
+  "https://76def820-552c-4b62-a2de-db7646bb920a-us-east1.apps.astra.datastax.com"
+)
+
+print(f"Connected to Astra DB: {db.list_collection_names()}")
 # Initialize FastAPI app
 app = FastAPI(title="Competitor Search API")
 
@@ -65,9 +73,8 @@ class CompetitorSearchRequest(BaseModel):
     url: str
 
 class CompetitorSearchResponse(BaseModel):
-    competitors: List[Dict[str, Any]]
+    competitors: List[Dict]
     analysis: str
-    search_queries: List[str]
 
 # System prompts
 analysis_system_prompt = """Adopt the role of a website analyst. You will be provided the scraped markdown data of a given website, from this site, you are to recognise the following:
@@ -90,15 +97,16 @@ analysis_system_prompt = """Adopt the role of a website analyst. You will be pro
     - Partner ecosystem"""
 
 searchquery_system_prompt = """You are a helpful assistant that will be provided some information about a website. This website will contain data about a particular company 
-that offers some products and/or services. Your job, is to, from this data give, construct 5 search queries that might result in companies that
+that offers some products and/or services. Your job, is to, from this data give, construct 3 search queries that might result in companies that
 do/offer similar products/services. focusing on what the given company does. essentially searching for potential competitors that offer similar products/services.
-These 5 queries must distill the essence of their product, each query must be a distinct core value add that the company provides, and queries must not overlap.
-Return your data in a List of Strings format that is parsable in python."""
+These 3 queries must distill the essence of their product, each query must be a distinct core value add that the company provides, and queries must not overlap.
+Return your data in a List of Strings format that is parsable in python. If a given list seems like a listicle, guide, blog, article, skip it entirely. Stuff like wikipedia, imdb, guides are forbidden. include only companies."""
 
 competitorfinder_system_prompt = """You are a helpful assistant who has json mode enabled. Your responses will strictly be in json format. You will be given 1. the details of a company, 
 these details represent the core purpose, features and USPs of a company. You will also be given 2. 15 links that are probably competitors. Here is your job:
-Find the 5 top companies from the 15 probably competitors that most closely compete with the core values of the company initially mentioned in 1. Return your output as the records of the json
-as seen in 2. (For example if you are given title link and snippet, return the same 3 of those top 5 companies)"""
+Find the 3 top companies from the probable competitors that most closely compete with the core values of the company initially mentioned in 1. Return your output as the records of the json
+as seen in 2. (For example if you are given title link and snippet, return the same 3 of those top 3 companies). DO NOT INCLUDE LISTICLES. DO NOT INCLUDE ARTICLES OR ANY SITES THAT SOUND LIKE TOP 10 OR ARE BLOG WEBSITES
+for example, netflix has prime video as their competitor. Samsung has Nothingphone and Pixel."""
 
 try:
     # Initialize models
@@ -127,14 +135,14 @@ except Exception as e:
 @app.post("/analyze-competitors", response_model=CompetitorSearchResponse)
 async def analyze_competitors(request: CompetitorSearchRequest):
     try:
-        logger.info(f"Starting competitor analysis for URL: {request.url}")
+        logger.info(f"Starting competitor analysis")
         
         # Scrape website data
         try:
             data = fcapp.scrape_url(request.url)
-            logger.info(f"Successfully scraped website data: {len(data)} characters")
+            logger.info(f"Successfully scraped website data")
         except Exception as e:
-            logger.error(f"Failed to scrape URL {request.url}: {str(e)}\n{traceback.format_exc()}")
+            logger.error(f"Failed to scrape URL: {str(e)}\n{traceback.format_exc()}")
             raise HTTPException(status_code=500, detail=f"Failed to scrape website: {str(e)}")
 
         # Analyze website
@@ -182,7 +190,7 @@ async def analyze_competitors(request: CompetitorSearchRequest):
         try:
             processed_results = []
             for result in setofresults:
-                organic = result["organic_results"][:3]
+                organic = result["organic_results"][:20]
                 record = []
                 for entry in organic:
                     record.append({
@@ -209,10 +217,25 @@ async def analyze_competitors(request: CompetitorSearchRequest):
             logger.error(f"Failed to identify top competitors: {str(e)}\n{traceback.format_exc()}")
             raise HTTPException(status_code=500, detail=f"Failed to identify top competitors: {str(e)}")
 
+        # Generate complete analysis
+        complete_analysis = f"""
+Based on our analysis, we identified the following key aspects:
+
+Company Profile:
+{llmanalysis.text}
+
+Key Search Terms:
+{', '.join(cleaned_queries)}
+
+Top Competitors Overview:
+{json.dumps(top_competitors, indent=2)}
+
+This analysis provides a comprehensive view of the company's market position and its main competitors.
+"""
+
         return CompetitorSearchResponse(
             competitors=top_competitors,
-            analysis=llmanalysis.text,
-            search_queries=cleaned_queries
+            analysis=complete_analysis
         )
 
     except HTTPException:
@@ -223,4 +246,4 @@ async def analyze_competitors(request: CompetitorSearchRequest):
 
 @app.get("/health")
 async def health_check():
-    return {"status": "healthy", "timestamp": str(datetime.datetime.now())} 
+    return {"status": "healthy"} 
