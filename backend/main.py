@@ -110,7 +110,7 @@ searchquery_system_prompt = """You are a helpful assistant that will be provided
 that offers some products and/or services. Your job, is to, from this data give, construct 3 search queries that might result in companies that
 do/offer similar products/services. focusing on what the given company does. essentially searching for potential competitors that offer similar products/services.
 These 3 queries must distill the essence of their product, each query must be a distinct core value add that the company provides, and queries must not overlap.
-Return your data in a List of Strings format that is parsable in python. If a given list seems like a listicle, guide, blog, article, skip it entirely. Stuff like wikipedia, imdb, guides are forbidden. include only companies."""
+Return your data in a List of Strings format that is parsable in python. If a given list seems like a listicle, guide, blog, article, or video skip it entirely. Stuff like wikipedia, imdb, guides, youtube, reddit, quora are forbidden. include only companies."""
 
 competitorfinder_system_prompt = """You are a helpful assistant who has json mode enabled. Your responses will strictly be in json format. You will be given 1. the details of a company, 
 these details represent the core purpose, features and USPs of a company. You will also be given 2. 15 links that are probably competitors. Here is your job:
@@ -127,7 +127,7 @@ try:
     )
 
     searchquery_model = genai.GenerativeModel(
-        model_name="gemini-2.0-flash-exp",
+        model_name="gemini-exp-1206",
         generation_config=gemini_generation_config,
         system_instruction=searchquery_system_prompt,
     )
