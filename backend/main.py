@@ -10,15 +10,19 @@ import traceback
 from dotenv import load_dotenv
 from firecrawl import FirecrawlApp
 from astrapy import DataAPIClient
-import asyncio
-import yt_dlp
-import webvtt
-import io
-import numpy as np
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.agents import tool, AgentExecutor, create_react_agent
 from langchain_core.messages import AIMessage, HumanMessage
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+import yt_dlp
+import webvtt
+import io
+import numpy as np
+import warnings
+import asyncio
+
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+warnings.filterwarnings("ignore", category=RuntimeWarning)
 
 # Configure detailed logging
 logging.basicConfig(
@@ -31,23 +35,41 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+class CompetitorSearchRequest(BaseModel):
+    url: str
+
+
+class CompetitorSearchResponse(BaseModel):
+    competitors: List[Dict[str, Any]]
+
+
+def format_log_to_messages(intermediate_steps):
+    """Construct the scratchpad that lets the agent continue its thought process."""
+    thoughts = []
+    for action, observation in intermediate_steps:
+        thoughts.append(AIMessage(content=action.log))
+        human_message = HumanMessage(content=f"Observation: {observation}")
+        thoughts.append(human_message)
+    return thoughts
+
 # Load environment variables
 load_dotenv()
-required_env_vars = ["GEMINI_KEY", "FIRECRAWL_KEY", "SERPAPI_KEY", "ASTRADB_KEY", "COMMENTS_API_KEY"]
+required_env_vars = ["GEMINI_KEY", "FIRECRAWL_KEY", "SERPAPI_KEY", "ASTRADB_KEY", "GEMINI_API_KEY"]
 for var in required_env_vars:
     if not os.getenv(var):
         logger.critical(f"Missing required environment variable: {var}")
         raise EnvironmentError(f"Missing required environment variable: {var}")
 
-#Initialize AstraDB
+# Initialize AstraDB
 client = DataAPIClient(os.getenv("ASTRADB_KEY"))
 db = client.get_database_by_api_endpoint(
-  "https://76def820-552c-4b62-a2de-db7646bb920a-us-east1.apps.astra.datastax.com"
+    "https://76def820-552c-4b62-a2de-db7646bb920a-us-east1.apps.astra.datastax.com"
 )
 
 print(f"Connected to Astra DB: {db.list_collection_names()}")
+
 # Initialize FastAPI app
-app = FastAPI(title="Market Analysis API")
+app = FastAPI(title="Unified Analysis API")
 
 try:
     # Configure Gemini
@@ -75,17 +97,14 @@ structured_gemini_generation_config = {
 }
 
 # Pydantic models
-class SearchQueries(BaseModel):
-    queries: List[str]
-
-class MarketAnalysisRequest(BaseModel):
+class UnifiedRequest(BaseModel):
     url: str
     company_name: str
 
-class MarketAnalysisResponse(BaseModel):
+class UnifiedResponse(BaseModel):
     competitors: List[Dict]
-    competitor_analysis: str
-    ad_analysis: Dict[str, Any]
+    analysis: str
+    social_analysis: Dict
 
 # System prompts
 analysis_system_prompt = """Adopt the role of a website analyst. You will be provided the scraped markdown data of a given website, from this site, you are to recognise the following:
@@ -119,8 +138,8 @@ Find the 3 top companies from the probable competitors that most closely compete
 as seen in 2. (For example if you are given title link and snippet, return the same 3 of those top 3 companies). DO NOT INCLUDE LISTICLES. DO NOT INCLUDE ARTICLES OR ANY SITES THAT SOUND LIKE TOP 10 OR ARE BLOG WEBSITES
 for example, netflix has prime video as their competitor. Samsung has Nothingphone and Pixel."""
 
-# Initialize Gemini models for competitor analysis
 try:
+    # Initialize models
     analysis_model = genai.GenerativeModel(
         model_name="gemini-2.0-flash-exp",
         system_instruction=analysis_system_prompt,
@@ -143,7 +162,7 @@ except Exception as e:
     logger.critical(f"Failed to initialize Gemini models: {str(e)}\n{traceback.format_exc()}")
     raise
 
-# Agent tools for ad analysis
+# Tools for agent
 @tool
 def scrape_url(url: str) -> str:
     """
@@ -170,6 +189,9 @@ def scrape_yt(url: str) -> str:
         "writeinfojson": False,
     }
 
+    if "youtube.com/shorts" in url:
+        return "Cannot scrape YouTube Shorts, try some other long form video"
+
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         output = {
             "Description": "",
@@ -194,9 +216,7 @@ def scrape_yt(url: str) -> str:
         try:
             # Get retention data
             retention_data = info.get("heatmap")
-
-            # Calculate Sponsorship Retention Ratio
-            if retention_data:
+            if retention_data and sponsor_segments:
                 sponsor_retention = []
                 non_sponsor_retention = []
                 for segment in sponsor_segments:
@@ -215,12 +235,11 @@ def scrape_yt(url: str) -> str:
             output["Sponsorship Retention Ratio"] = -1
 
         try:
-            # Get English subtitles
+            # Get English subtitles and process sponsor transcript
             en_subtitle = info.get("requested_subtitles", {}).get("en") or info.get(
                 "requested_subtitles", {}
             ).get("en-auto")
 
-            # Process sponsor transcript from subtitles
             if en_subtitle and sponsor_segments:
                 subtitle_url = en_subtitle["url"]
                 subtitle_content = ydl.urlopen(subtitle_url).read().decode("utf-8")
@@ -230,7 +249,10 @@ def scrape_yt(url: str) -> str:
                 for segment in sponsor_segments:
                     start, end = segment["segment"]
                     for caption in vtt:
-                        if start <= caption.start_in_seconds <= end or start <= caption.end_in_seconds <= end:
+                        if (
+                            start <= caption.start_in_seconds <= end
+                            or start <= caption.end_in_seconds <= end
+                        ):
                             for line in caption.text.strip().splitlines():
                                 if line not in seen_lines:
                                     output["Sponsor Transcript"] += line + " "
@@ -240,93 +262,7 @@ def scrape_yt(url: str) -> str:
         except:
             output["Sponsor Transcript"] = "No sponsor segments or English subtitles available."
 
-        try:
-            # Get comments
-            video_id = url.split("=")[-1]
-            params = {
-                "part": "snippet",
-                "videoId": video_id,
-                "maxResults": "50",
-                "textFormat": "plainText",
-                "key": os.environ.get("COMMENTS_API_KEY"),
-            }
-
-            response = requests.get(
-                "https://www.googleapis.com/youtube/v3/commentThreads",
-                params=params,
-                headers={"Referer": "https://ytcomment.kmcat.uk/"},
-            )
-
-            # Extract comments
-            output["Comments"] = [
-                comment["snippet"]["topLevelComment"]["snippet"]["textDisplay"].strip()
-                for comment in response.json().get("items", [])
-            ]
-        except:
-            output["Comments"] = []
-
         return output
-
-@tool
-def scrape_reddit(subreddit: str) -> dict:
-    """
-    Extract top 10 posts from a subreddit with its top 10 comments using the subreddit name. Only provide subreddit name without r/
-    """
-    subreddit = subreddit.strip().replace("\n", "").replace("'", "").replace('"', "")
-    print(f"Scraping Subreddit: {subreddit}")
-    url = f"https://www.reddit.com/r/{subreddit}/top/.json?t=all"
-
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36"
-    }
-
-    output = {}
-    response = requests.get(url=url, headers=headers)
-    if response.status_code == 200:
-        data = response.json()
-        for i in range(10):
-            try:
-                output[i] = {
-                    "title": data["data"]["children"][i]["data"]["title"],
-                    "description": data["data"]["children"][i]["data"]["selftext"],
-                    "url": "https://www.reddit.com" + data["data"]["children"][i]["data"]["permalink"],
-                    "upvote_ratio": data["data"]["children"][i]["data"]["upvote_ratio"],
-                    "comments": {},
-                }
-            except:
-                break
-    else:
-        print("Failed to fetch data from Reddit")
-        print(response.status_code)
-        return "Could not scrape reddit"
-
-    for i in output:
-        url = output[i]["url"] + ".json?sort=top"
-        r = requests.get(url=url, headers=headers)
-        if r.status_code == 200:
-            data = r.json()
-            try:
-                for j in range(10):
-                    output[i]["comments"][j] = {
-                        "text": data[1]["data"]["children"][j]["data"]["body"],
-                        "upvotes": data[1]["data"]["children"][j]["data"]["ups"],
-                        "replies": {},
-                    }
-                    try:
-                        for k in range(5):
-                            output[i]["comments"][j]["replies"][k] = {
-                                "text": data[1]["data"]["children"][j]["data"]["replies"]["data"]["children"][k]["data"]["body"],
-                                "upvotes": data[1]["data"]["children"][j]["data"]["replies"]["data"]["children"][k]["data"]["ups"],
-                            }
-                    except:
-                        pass
-            except Exception as e:
-                pass
-        else:
-            print("Failed to fetch comments from Reddit")
-            print(r.status_code)
-
-    return output
 
 @tool
 def search_youtube(search_query: str) -> dict:
@@ -345,13 +281,11 @@ def search_youtube(search_query: str) -> dict:
     }
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            result = ydl.extract_info(f"ytsearch50:{search_query}", download=False)
+            result = yt_dlp.YoutubeDL(ydl_opts).extract_info(f"ytsearch50:{search_query}", download=False)
             videos = result.get("entries", [])
-
             sorted_videos = sorted(
                 videos, key=lambda x: x.get("view_count", 0), reverse=True
             )
-
             top_videos = {
                 i: {
                     "title": video.get("title", "Unknown"),
@@ -359,34 +293,21 @@ def search_youtube(search_query: str) -> dict:
                 }
                 for i, video in enumerate(sorted_videos[:5])
             }
-
             return top_videos
     except Exception as e:
         return {"error": str(e)}
 
-def format_log_to_messages(intermediate_steps):
-    """Construct the scratchpad that lets the agent continue its thought process."""
-    thoughts = []
-    for action, observation in intermediate_steps:
-        thoughts.append(AIMessage(content=action.log))
-        human_message = HumanMessage(content=f"Observation: {observation}")
-        thoughts.append(human_message)
-    return thoughts
-
-# Initialize the ad analysis agent
-load_dotenv()
+# Initialize LangChain components
 llm = ChatGoogleGenerativeAI(
     model="gemini-1.0-pro",
-    api_key=os.environ.get("GEMINI_KEY"),
+    api_key=os.getenv("GEMINI_API_KEY"),
 )
-tools = [scrape_url, scrape_yt, search_youtube, scrape_reddit]
-prompt = ChatPromptTemplate.from_messages(
-    [
-        (
-            "system",
-            """{
+
+tools = [scrape_url, scrape_yt, search_youtube]
+
+system_prompt = """{
   "mode": "JSON",
-  "instructions": "Answer all questions with detailed, data-backed insights and numerical metrics. Extract, analyze, and compare measurable outcomes from YouTube, Reddit, and TrustPilot. Every platform’s analysis must contain precise numbers, percentages, and comparative benchmarks. Focus on actionable insights backed by granular metrics.",
+  "instructions": "Answer all questions with detailed, data-backed insights and numerical metrics. Extract, analyze, and compare measurable outcomes from YouTube, Reddit, and TrustPilot. Every platform's analysis must contain precise numbers, percentages, and comparative benchmarks. Focus on actionable insights backed by granular metrics.",
   "tools": "{tools}",
   "rules": [
     { "id": 1, "rule": "Use scrape_url for extracting data from specific URLs only." },
@@ -413,128 +334,24 @@ prompt = ChatPromptTemplate.from_messages(
     },
     {
       "id": "trustpilot_analysis",
-      "description": "Review TrustPilot feedback to calculate satisfaction rates, percentage breakdown of review types, and common trends. Compare the company’s ratings with industry averages and highlight strengths or weaknesses numerically."
+      "description": "Review TrustPilot feedback to calculate satisfaction rates, percentage breakdown of review types, and common trends. Compare the company's ratings with industry averages and highlight strengths or weaknesses numerically."
     },
     {
       "id": "ad_storyline",
       "description": "Develop a storyline for a new ad campaign based on data insights. Use timestamps from YouTube retention, pain points from Reddit, and numerical claims from TrustPilot to make the ad relatable and impactful."
     }
-  ],
-  "process": [
-    {
-      "step": 1,
-      "action": "Search YouTube for videos.",
-      "instructions": [
-        "Generate 5 specific search queries like '[company name] ad 2024', '[product name] sponsored review', '[company name] best commercial', etc.",
-        "Use search_youtube to find relevant videos.",
-        "Use scrape_yt to extract and analyze audience retention graphs, engagement stats, timestamps with highest retention percentages, and engagement comparisons."
-      ]
-    },
-    {
-      "step": 2,
-      "action": "Analyze Reddit data.",
-      "instructions": [
-        "Search for subreddit posts related to the company or product.",
-        "Quantify total posts, average upvotes, sentiment polarity (e.g., 70% positive), and frequently mentioned phrases or themes (e.g., 'fast delivery' mentioned in 25% of posts).",
-        "Highlight recurring complaints or praises with percentages."
-      ]
-    },
-    {
-      "step": 3,
-      "action": "Analyze TrustPilot reviews.",
-      "instructions": [
-        "Calculate the company’s average rating, breakdown of review types (e.g., 30% positive, 50% neutral, 20% negative), and comparison with competitors.",
-        "Highlight recurring feedback themes numerically (e.g., 'poor customer service' mentioned in 18% of reviews)."
-      ]
-    },
-    {
-      "step": 4,
-      "action": "Propose ad improvements.",
-      "instructions": [
-        "Use retention hotspots from YouTube data to structure the ad.",
-        "Address user pain points identified in Reddit and TrustPilot reviews.",
-        "Integrate precise metrics (e.g., '89% of users recommend X') to build trust."
-      ]
-    }
-  ],
-  "response_structure": {
-    "question": "The input question you must answer.",
-    "thought": "Detailed reasoning behind your approach.",
-    "action": "Action taken, specifying the tool used.",
-    "action_input": "Input provided for the action.",
-    "observation": "Result of the action.",
-    "final_answer": {
-      "query_suggestions": [
-        "List of 5 refined YouTube search queries."
-      ],
-      "youtube": {
-        "videos": [
-          {
-            "title": "Video title",
-            "url": "Video URL",
-            "metrics": {
-              "views": "Number of views",
-              "likes": "Number of likes",
-              "dislikes": "Number of dislikes",
-              "comments": "Number of comments",
-              "retention_hotspots": [
-                {
-                  "time": "Timestamp (e.g., 2:10)",
-                  "retention_percentage": "Percentage of audience retained."
-                }
-              ],
-              "watch_time_analysis": {
-                "average_watch_time": "Average watch time in minutes/seconds.",
-                "completion_rate": "Percentage of viewers who finish the video."
-              }
-            }
-          }
-        ],
-        "engagement_comparison": "Comparative analysis of engagement metrics across videos."
-      },
-      "reddit": {
-        "total_posts": "Total number of posts mentioning the company or product.",
-        "average_upvotes": "Average upvotes per post.",
-        "common_themes": [
-          {
-            "theme": "Recurring theme or complaint",
-            "percentage_mentions": "Percentage of posts mentioning this theme."
-          }
-        ],
-        "sentiment_breakdown": {
-          "positive": "Percentage of posts with positive sentiment.",
-          "negative": "Percentage of posts with negative sentiment."
-        }
-      },
-      "trustpilot": {
-        "average_rating": "Company's average rating.",
-        "review_distribution": {
-          "positive": "Percentage of positive reviews.",
-          "neutral": "Percentage of neutral reviews.",
-          "negative": "Percentage of negative reviews."
-        },
-        "common_feedback": [
-          {
-            "feedback": "Specific praise or complaint",
-            "percentage_mentions": "Percentage of reviews mentioning this."
-          }
-        ],
-        "industry_comparison": "How the company’s rating compares to competitors."
-      },
-      "ad_storyline": {
-        "hook": "Catchy opening line based on insights.",
-        "main_message": "Key points addressing user pain points and leveraging strengths.",
-        "data_integration": "Numerical data used in the ad to build credibility (e.g., '89% customer satisfaction')."
-      }
-    }
-  }
-}""",
-        ),
+  ]
+}"""
+
+prompt = ChatPromptTemplate.from_messages(
+    [
+        ("system", system_prompt),
         MessagesPlaceholder(variable_name="chat_history"),
-        ("user", "User: {input}"),
-        ("ai", "Scratchpad: {agent_scratchpad}"),
+        ("user", "{input}"),
+        ("assistant", "Scratchpad: {agent_scratchpad}"),
     ]
 )
+
 llm_with_tools = llm.bind_tools(tools)
 agent = create_react_agent(
     tools=tools,
@@ -548,14 +365,13 @@ agent_executor = AgentExecutor(
     handle_parsing_errors=True,
 )
 
-# Competitor analysis function
-async def analyze_competitors(url: str):
+async def analyze_competitors_task(request_url: str):
     try:
         logger.info(f"Starting competitor analysis")
         
         # Scrape website data
         try:
-            data = fcapp.scrape_url(url)
+            data = fcapp.scrape_url(request_url)
             logger.info(f"Successfully scraped website data")
         except Exception as e:
             logger.error(f"Failed to scrape URL: {str(e)}\n{traceback.format_exc()}")
@@ -594,7 +410,7 @@ async def analyze_competitors(url: str):
                 }
                 url = "https://serpapi.com/search"
                 response = requests.get(url, params=params)
-                response.raise_for_status()
+                response.raise_for_status()  # Raise exception for bad status codes
                 results = response.json()
                 setofresults.append(results)
                 logger.info(f"Completed search {i+1}/{len(cleaned_queries)}: {q}")
@@ -649,10 +465,10 @@ Top Competitors Overview:
 This analysis provides a comprehensive view of the company's market position and its main competitors.
 """
 
-        return {
-            "competitors": top_competitors,
-            "analysis": complete_analysis
-        }
+        return CompetitorSearchResponse(
+            competitors=top_competitors,
+            analysis=complete_analysis
+        )
 
     except HTTPException:
         raise
@@ -660,8 +476,7 @@ This analysis provides a comprehensive view of the company's market position and
         logger.error(f"Unexpected error during competitor analysis: {str(e)}\n{traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
 
-# Ad analysis function
-async def analyze_ads(company_name: str):
+async def analyze_social_task(company_name: str):
     try:
         result = agent_executor.invoke(
             {
@@ -672,29 +487,32 @@ async def analyze_ads(company_name: str):
         )
         return json.loads(result["output"].replace("```json", "").replace("```", "").strip("\"").strip("'").replace("\\n", ""))
     except Exception as e:
-        logger.error(f"Failed to analyze ads: {str(e)}\n{traceback.format_exc()}")
-        raise HTTPException(status_code=500, detail=f"Failed to analyze ads: {str(e)}")
+        logger.error(f"Error in social analysis: {str(e)}")
+        raise
 
-# Combined market analysis endpoint
-@app.post("/analyze-market", response_model=MarketAnalysisResponse)
-async def analyze_market(request: MarketAnalysisRequest):
+@app.post("/unified-analysis")
+async def unified_analysis(request: UnifiedRequest):
     try:
         # Run both analyses concurrently
-        competitor_task = asyncio.create_task(analyze_competitors(request.url))
-        ad_task = asyncio.create_task(analyze_ads(request.company_name))
-        
+        competitor_task = asyncio.create_task(analyze_competitors_task(request.url))
+        social_task = asyncio.create_task(analyze_social_task(request.company_name))
+
         # Wait for both tasks to complete
-        competitor_results, ad_results = await asyncio.gather(competitor_task, ad_task)
-        
-        return MarketAnalysisResponse(
-            competitors=competitor_results["competitors"],
-            competitor_analysis=competitor_results["analysis"],
-            ad_analysis=ad_results
+        competitor_result, social_result = await asyncio.gather(competitor_task, social_task)
+
+        return UnifiedResponse(
+            competitors=competitor_result.competitors,
+            analysis=competitor_result.analysis,
+            social_analysis=social_result
         )
     except Exception as e:
-        logger.error(f"Failed to perform market analysis: {str(e)}\n{traceback.format_exc()}")
-        raise HTTPException(status_code=500, detail=f"Failed to perform market analysis: {str(e)}")
+        logger.error(f"Error in unified analysis: {str(e)}\n{traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/health")
 async def health_check():
     return {"status": "healthy"}
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000) 
