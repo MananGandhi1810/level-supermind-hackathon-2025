@@ -11,8 +11,7 @@ from firecrawl import FirecrawlApp
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -42,15 +41,19 @@ structured_gemini_generation_config = {
     "response_mime_type": "application/json",
 }
 
+
 # Pydantic models
 class SearchQueries(BaseModel):
     queries: List[str]
 
+
 class CompetitorSearchRequest(BaseModel):
     url: str
 
+
 class CompetitorSearchResponse(BaseModel):
     competitors: List[Dict[str, Any]]
+
 
 # System prompts
 analysis_system_prompt = """Adopt the role of a website analyst. You will be provided the scraped markdown data of a given website, from this site, you are to recognise the following:
@@ -87,7 +90,7 @@ as seen in 2. (For example if you are given title link and snippet, return the s
 analysis_model = genai.GenerativeModel(
     model_name="gemini-2.0-flash-exp",
     system_instruction=analysis_system_prompt,
-    generation_config=gemini_generation_config
+    generation_config=gemini_generation_config,
 )
 
 searchquery_model = genai.GenerativeModel(
@@ -99,14 +102,15 @@ searchquery_model = genai.GenerativeModel(
 competitorfinder_model = genai.GenerativeModel(
     model_name="gemini-2.0-flash-exp",
     system_instruction=competitorfinder_system_prompt,
-    generation_config=structured_gemini_generation_config
+    generation_config=structured_gemini_generation_config,
 )
+
 
 @app.post("/analyze-competitors", response_model=CompetitorSearchResponse)
 async def analyze_competitors(request: CompetitorSearchRequest):
     try:
         logger.info(f"Starting competitor analysis for URL: {request.url}")
-        
+
         # Scrape website data
         data = fcapp.scrape_url(request.url)
         logger.info("Successfully scraped website data")
@@ -117,7 +121,9 @@ async def analyze_competitors(request: CompetitorSearchRequest):
 
         # Generate search queries
         queries = searchquery_model.generate_content(f"Company analysis: {llmanalysis}")
-        cleaned_queries = eval(queries.text.replace('```python', '').replace('```', '').strip())
+        cleaned_queries = eval(
+            queries.text.replace("```python", "").replace("```", "").strip()
+        )
         logger.info(f"Generated {len(cleaned_queries)} search queries")
 
         # Search for competitors
@@ -129,7 +135,7 @@ async def analyze_competitors(request: CompetitorSearchRequest):
                 "q": f"{q}",
                 "google_domain": "google.com",
                 "gl": "us",
-                "hl": "en"
+                "hl": "en",
             }
             url = "https://serpapi.com/search"
             response = requests.get(url, params=params)
@@ -143,11 +149,13 @@ async def analyze_competitors(request: CompetitorSearchRequest):
             organic = result["organic_results"][:3]
             record = []
             for entry in organic:
-                record.append({
-                    "title": entry["title"],
-                    "link": entry["link"],
-                    "snippet": entry["snippet"]
-                })
+                record.append(
+                    {
+                        "title": entry["title"],
+                        "link": entry["link"],
+                        "snippet": entry["snippet"],
+                    }
+                )
             processed_results.append(record)
         logger.info("Processed search results")
 
@@ -164,6 +172,8 @@ async def analyze_competitors(request: CompetitorSearchRequest):
         logger.error(f"Error during competitor analysis: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
+
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000) 
+
+    uvicorn.run(app, host="0.0.0.0", port=8000)

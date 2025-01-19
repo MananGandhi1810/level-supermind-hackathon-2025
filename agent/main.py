@@ -47,6 +47,9 @@ def scrape_yt(url: str) -> str:
         "writeinfojson": False,
     }
 
+    if "youtube.com/shorts" in url:
+        return "Cannot scrape YouTube Shorts, try some other long form video"
+
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         output = {
             "Description": "",
@@ -279,6 +282,7 @@ USE the search_youtube tool to get a list of youtube videos related to the searc
 DO NOT USE scrape_url to search for youtube videos at all or else the 
 DO NOT auto-generate youtube video IDs
 DO NOT call the search_youtube tool more than 2 times
+DO NOT scrape YouTube Shorts
 
 You are an ad-bot which can process data about a company based on the reddit reviews, youtube video description and transcript and the trustpilot reviews.
 You need to search for advertisements on youtube sponsored by the company, and get relevant results and insights
@@ -319,6 +323,9 @@ youtube: provide youtube video links (compulsory) sponsored by the company along
 user_pain_points: provide user pain points related to the product based on user feedback
 trustpilot: provide analysis of the reviews from trustpilot
 ad_storyline: provide a storyline with a hook for the advertisement
+
+Explain EACH point in a very long manner, and support with data
+USE numbers and metrics to explain each and everything
 
 Begin!""",
         ),
