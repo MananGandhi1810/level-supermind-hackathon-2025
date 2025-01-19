@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { WindIcon } from "lucide-react";
 
 const CreateProjectCard = () => {
   const { user } = useUser();
@@ -46,7 +47,7 @@ const CreateProjectCard = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          userId: user.sid, // User ID from Auth0
+          userId: user.email,
           companyName: companyData.name,
           companyURL: companyData.url,
           createdAt: new Date().toISOString(),
@@ -59,7 +60,9 @@ const CreateProjectCard = () => {
       }
 
       const result = await response.json();
+
       console.log("Project created successfully:", result);
+      window.location.reload();
 
       // Close dialog and reset form state
       setIsOpen(false);

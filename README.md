@@ -15,7 +15,7 @@ We’ve chosen technologies that are reliable, scalable, and fast:
 - **APIs:** SerpAPI, YouTube Comments API, Reddit API  
 - **Utilities:** yt-dlp, WebVTT  
 - **Authentication:** Auth0  
-- **AI Engine:** Gemini 1.5 Flash  
+- **AI Engine:** Gemini 2.0 Flash  
 
 ---
 
@@ -23,13 +23,13 @@ We’ve chosen technologies that are reliable, scalable, and fast:
 
 ![image](https://github.com/user-attachments/assets/4fe1c3ab-3c89-441e-ab3a-740d0bbe196e)
 
-Our architecture is simple, modular, and built to scale.  
+Our architecture is simple, modular and easy to upgrade. 
 
 ```
 market-intelligence-platform/
 ├── frontend/         # Next.js-based frontend
 ├── agent/            # Python-powered analysis module
-└── backend/          # FastAPI backend service
+└── backend/          # FastAPI based backendd + competitor mapping service
 ```  
 
 ---
@@ -47,7 +47,7 @@ market-intelligence-platform/
 The core engine behind Adgen handles heavy-duty analytics:  
 - Analyzes YouTube content for trends and sentiment.  
 - Monitors Reddit for user discussions and brand sentiment.  
-- Tracks competitors and provides actionable intelligence on ads and retention metrics.  
+- Tracks competitors and provides actionable intelligence.  
 
 ---
 
@@ -56,7 +56,7 @@ The core engine behind Adgen handles heavy-duty analytics:
 The backend API powers the platform with these capabilities:  
 - Centralized endpoints for competitor and social analysis.  
 - Seamless database management.  
-- Secure and scalable with rate limiting, logging, and monitoring baked in.  
+- Secure and scalable with logging, and monitoring baked in.  
 
 ---
 
@@ -65,16 +65,16 @@ The backend API powers the platform with these capabilities:
 Adgen is designed for teams and individuals who need to stay sharp in competitive markets:  
 
 1. **Marketing Teams**  
-   Track advertising strategies, monitor brand sentiment, and analyze competitors.  
+   Track sentiment, and analyze competitors.  
 
 2. **Product Managers**  
-   Research features, track trends, and gather feedback to improve products.  
+   Research features, and gather feedback to improve products.  
 
 3. **Business Analysts**  
-   Stay informed with market insights, industry trends, and competitor landscapes.  
+   Stay informed with competitor landscapes.  
 
 4. **Startup Founders**  
-   Understand your competition, identify market opportunities, and track industry shifts.  
+   Understand your competition, identify how you can distinguish yourself.
 
 ---
 
@@ -125,10 +125,10 @@ pip install -r requirements.txt
 ## How It Works  
 
 1. User submits a company name and URL through the frontend.  
-2. The backend API processes the request and initiates various analyses:  
-   - Web scraping for competitor insights.  
-   - Social sentiment analysis via YouTube and Reddit.  
-3. The agent processes raw data, identifies trends, and generates insights.  
+2. The backend API processes the request and initiates various analyses, using Agentic RAG:  
+   - Agent 1: Scraping your website for insights on customer pain points 
+   - Agent 2: Discovering and scraping competitor websites, finding their pain points.
+3. The agent processes raw data, and generates insights.  
 4. Combined results are sent back to the frontend for display.  
 5. Users interact with visualizations and detailed reports to take action.  
 
@@ -136,34 +136,21 @@ pip install -r requirements.txt
 
 ## What’s Next for Adgen?  
 
-We’re not stopping here. Here’s what’s coming soon:  
+Here’s what’s we can upgrade:
 
 ### **Smarter Analytics**  
-- Predict trends with AI.  
 - Advanced social sentiment analysis.  
 - Custom insight generation.  
-
-### **Wider Platform Coverage**  
-- Adding integrations with LinkedIn, Twitter, Instagram, and TikTok.  
 
 ### **New Features**  
 - Customizable reports.  
 - Notifications and alert systems.  
-- **Video Ad Generation:** We’re working on a feature that will allow users to input a basic storyline, and Adgen will generate a video ad tailored to the concept.  
+- Storyboarding: We can work on a feature that will allow users to input a basic storyline, and Adgen will generate a storyboard tailored to their concept
 
 ### **Technical Upgrades**  
-- Introducing GraphQL for flexible querying.  
-- Real-time updates via WebSockets.  
-- Enhanced caching for faster performance.  
+- Enhanced caching for faster performance.
+- Custom reddit and youtube scraping agents to bypass blocking 
 
----
-
-## Built with Security in Mind  
-
-We take security seriously:  
-- Rate-limiting to prevent abuse.  
-- Input validation to avoid injection attacks.  
-- XSS protection for a safe user experience.  
 
 Adgen isn’t just a tool; it’s your partner in navigating the ever-changing business landscape. Try it out today!  
 
