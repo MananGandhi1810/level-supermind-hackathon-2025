@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+
 import {
   Card,
   CardContent,
@@ -11,321 +11,136 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { AlertCircle, Star, ThumbsDown, Youtube } from "lucide-react";
-import { useUser } from "@auth0/nextjs-auth0/client";
+import { useEffect, useState } from "react";
 
-const placeholderData = {
-  reddit:
-    "Reddit analysis reveals user dissatisfaction with browsing, autoplaying trailers, and the lack of filtering options.",
-  youtube: [
-    {
-      link: "https://www.youtube.com/watch?v=NALpUMraeug",
-      analysis: "High engagement but lacks focus on user concerns.",
-    },
-    {
-      link: "https://www.youtube.com/watch?v=tnEsBAPvJ9o",
-      analysis: "Festive advertisement with strong user engagement.",
-    },
-  ],
-  user_pain_points: [
-    "Difficult content browsing experience",
-    "Auto-playing trailers",
-    "Lack of filtering options",
-  ],
-  trustpilot:
-    "Trustpilot reveals a 1.4 TrustScore, with 67% 1-star reviews based on over 10,500 ratings.",
-  ad_storyline:
-    "Hook: 'Tired of endless scrolling?' A new feature solves the 'what to watch' problem.",
-};
-
-const CompanyProjectPage = ({ slug }) => {
-  const [companies, setCompanies] = useState([]); // Renamed to companies
-  const [loading, setLoading] = useState(true);
-  const [analysis, setAnalysis] = useState({
-    reddit: "No data available from Reddit.",
-    youtube: [
-      {
-        link: "https://www.youtube.com/watch?v=j_18UV939DM",
-        analysis:
-          "This is a company-created advertisement showcasing Layers' products.  It includes a promotional code for a discount. The video has a high number of comments (mostly in Hindi/other languages), many expressing interest but also highlighting issues with delivery times and order cancellation difficulties.",
-      },
-      {
-        link: "https://www.youtube.com/watch?v=JgIXqHX2GlM",
-        analysis:
-          "This is another company-created advertisement, a collaboration featuring a YouTuber applying Layers skin to a car.  Similar to the previous video, the comments section reveals concerns about product pricing and design quality, alongside excitement for the product.",
-      },
-    ],
-    user_pain_points: [
-      {
-        pain_point: "Incorrect order fulfillment.",
-        data_driven_analysis:
-          "Two 1-star Trustpilot reviews directly mention receiving the wrong order. This indicates a significant problem with the order processing and fulfillment system.",
-      },
-      {
-        pain_point: "Poor customer service and lack of support.",
-        data_driven_analysis:
-          "Both 1-star Trustpilot reviews cite unresponsive and unhelpful customer service, specifically regarding returns and exchanges.  This points to a need for improved customer support processes and communication.",
-      },
-      {
-        pain_point: "High pricing.",
-        data_driven_analysis:
-          "YouTube comments mention the high price of Layers skins as a barrier to purchase for some customers.",
-      },
-      {
-        pain_point: "Design quality concerns.",
-        data_driven_analysis:
-          "YouTube comments reveal some dissatisfaction with the designs offered.",
-      },
-    ],
-    trustpilot: {
-      analysis:
-        "Layers has a 3.6 TrustScore based on 4 reviews.  The reviews are sharply divided between 5-star and 1-star ratings. This highlights excellent product quality but significant issues with order fulfillment and customer service.  A major improvement area is addressing order accuracy and providing responsive, helpful customer support.",
-    },
-    ad_storyline: {
-      hook: "Tired of boring phone cases?  Transform your tech with Layers!",
-      storyline:
-        "The ad opens with a montage of people frustrated with damaged, dull, or boring phone cases.  Then, introduce Layers skins—showcasing their ease of application, vibrant designs, and protective qualities.  Highlight the solution to user pain points by showing a quick, easy application process and a customer service representative promptly resolving an issue.  Conclude with a call to action: visit layers.shop and use code 'TRANSFORM10' for 10% off your first order.  Emphasize the satisfaction of having a unique, personalized, and protected device.",
-    },
-  });
-  const [data, setData] = useState(placeholderData);
-  const [competitors, setCompetitors] = useState({
+export default function CompanyProjectPage() {
+  // Extract YouTube metrics for the stats card
+  const [data, setData] = useState({
     competitors: [
       {
-        title: "Slickwraps: Custom Skins & Wraps for Phones, Laptops & ...",
-        link: "https://www.slickwraps.com/",
+        title: "Harmonic.ai - The complete startup database",
+        link: "https://www.harmonic.ai/",
         snippet:
-          "Customize and protect your devices with premium skins from Slickwraps. Shop unique designs for phones, laptops, and more. Quality protection, endless style ...",
+          "Our ever-growing database of 20M+ companies and 160M+ people ensures you're never missing an opportunity. Create, tune and save hyper-specific searches.",
       },
       {
-        title: "dbrand » Official Shop",
-        link: "https://dbrand.com/?srsltid=AfmBOopCUID8CN8vb_gHRHcQREW1xmVJ_pgIRTAbgwxkZ30DqFyAmRHH",
+        title: "Access 4.7M+ Startups & Scaleups | StartUs Insights Platform",
+        link: "https://www.startus-insights.com/startus-insights-platform/",
         snippet:
-          "dbrand is the global leader in device customization. Founded on 11.11.11. Run by robots.",
+          "Dive into the world of innovation with the Big Data and AI-powered Discovery Platform, where discovering startups, technologies, and market trends is not just ...",
       },
       {
-        title: "Clear-Coat Phone Skins by Mobile Outfitters | Made in USA",
-        link: "https://www.moutfitters.com/our-products/clear-coat/",
+        title: "Deal Sourcing Tools for VC Investors",
+        link: "https://www.vcstack.io/category/deal-sourcing",
         snippet:
-          "Invisible scratch protection for a sleek touchscreen experience. HD clarity, military-grade strength, and USA made quality so it can withstand anything.",
+          "We build a data-driven deal sourcing & due diligence engine for VC investors. OurCrowd. Democratizing access to private equity investing.",
+      },
+      {
+        title: "A Guide to Venture Capital Deal Sourcing",
+        link: "https://www.cyndx.com/resources/blog/venture-capital-deal-sourcing/",
+        snippet:
+          "Cyndx Finder is an AI-enriched deal origination platform designed to empower venture capitalists in navigating the complex landscape of global ...",
+      },
+      {
+        title: "Startup Fundraising Platform | FundrsVC",
+        link: "https://fundrs.vc/",
+        snippet:
+          "FundrsVC offers a comprehensive and user-friendly platform that helps startup founders and early-stage investors navigate the fundraising process.",
+      },
+      {
+        title: "Fundable | Startup Fundraising Platform",
+        link: "https://www.fundable.com/",
+        snippet:
+          "Startup Fundraising Platform. Start and manage a professional fundraise to attract quality accredited investors.",
       },
     ],
     analysis:
-      '\nBased on our analysis, we identified the following key aspects:\n\nCompany Profile:\nOkay, let\'s analyze this scraped website data.\n\n**1. Product/Service Categories**\n\n*   **Core Product:** Customizable mobile skins.\n    *   **Description:** These are adhesive vinyl wraps designed to fit various mobile phone models, providing protection and aesthetic customization.\n    *   **Specific Product Names:** The website displays a wide array of design names for the skins like "Cyberhud," "Magma," "Chaos," "Space Blueprint," "Canopy Cascade," "Cybermind," "Concrete Rock," "Cybernetic Charge", "Purple River" etc. There are also designs like "Ethnic", "HudOG", "Game", "Groovy", "Kaleidoscope", "Leaf Pattern", "Pebbles" and "Tech". These names suggest different visual themes and styles for the skins.\n*  **Service Offerings**:\n    *   The primary offering is the ability to "Build Your Mobile Skin" via an interactive selection process, indicating a customization service.\n    *   They also offer a "custom skin" service for devices not listed on the site.\n*   **Industry-Specific Terminology/Jargon:** "Vinyl Skin," "3M vinyl wrap," "Zero Glue Residue" these terms describe the material and application process of the product.\n*   **Target Market Segments:** This appears to be primarily aimed at individual consumers looking to personalize and protect their mobile devices. The wide range of designs indicates they are targeting various tastes and preferences.\n*   **Core Problem Solved:** The main problem they solve is offering a way for customers to personalize their devices and prevent scratches, with a mention of being "Ultra-Thin" so as not to add bulk.\n\n**3. Business Model Identifiers**\n\n*   **Pricing Structure:**\n    *   The website shows a clear B2C pricing model. There is a "Sale Price" of ₹ 599.00, marked down from the "Regular price" of ₹ 699.00 which helps with marketing.\n    *   Prices appear to be fixed per skin, which implies a retail approach.\n    *   They offer free shipping on orders above ₹999, indicating a minimum threshold to encourage larger purchases.\n*   **Target Customer Size:** The primary target is individual consumers, indicating a strong focus on the SMB space.\n*   **Sales Model:**\n    *   Direct-to-consumer (DTC) sales model through their e-commerce website.\n    *   They utilize an interactive product builder for selecting device type, brand, model, and design.\n    *   They have a shopping cart functionality, which is classic for E-commerce.\n\n**4. Market Positioning**\n\n*   **Key Value Propositions:**\n    *   **Customization:** The ability to select from a variety of designs and device models for personalized device aesthetics.\n    *   **Protection:** The skins offer scratch protection with an emphasis on being lightweight and thin.\n    *   **Quality Materials:** The use of "3M vinyl wrap" positions their product as high-quality and durable.\n    *   **Easy Application/Removal:** The "Zero Glue Residue" claim makes it easy to remove without damage to the device.\n    *  **Unique Textures:** "WOW 3D Textures" highlights a superior finish and style in the market.\n*  **Mission Statement:** Although there isn\'t a clear mission statement written explicitly, their emphasis on personalization, protection, quality, and easy application suggests a mission to provide customers with a way to express themselves through their devices while keeping them safe.\n*   **Partner Ecosystem:** The use of "3M vinyl" suggests a partnership with 3M. This is leveraged to highlight a material\'s quality.\n\n**In Summary:**\n\nLayers.shop is an e-commerce business that sells custom vinyl skins for mobile devices, positioning itself in the market with a focus on customization, protection, and high-quality materials. They target individual consumers through a direct-to-consumer sales model, offering a simple yet engaging customer experience. They market themselves as a provider of a high quality product with strong use of 3M branding.\n\n\nKey Search Terms:\ncustomizable phone skins, 3M vinyl wraps, mobile device scratch protection\n\nTop Competitors Overview:\n[\n  {\n    "title": "Slickwraps: Custom Skins & Wraps for Phones, Laptops & ...",\n    "link": "https://www.slickwraps.com/",\n    "snippet": "Customize and protect your devices with premium skins from Slickwraps. Shop unique designs for phones, laptops, and more. Quality protection, endless style ..."\n  },\n  {\n    "title": "dbrand \\u00bb Official Shop",\n    "link": "https://dbrand.com/?srsltid=AfmBOopCUID8CN8vb_gHRHcQREW1xmVJ_pgIRTAbgwxkZ30DqFyAmRHH",\n    "snippet": "dbrand is the global leader in device customization. Founded on 11.11.11. Run by robots."\n  },\n  {\n    "title": "Clear-Coat Phone Skins by Mobile Outfitters | Made in USA",\n    "link": "https://www.moutfitters.com/our-products/clear-coat/",\n    "snippet": "Invisible scratch protection for a sleek touchscreen experience. HD clarity, military-grade strength, and USA made quality so it can withstand anything."\n  }\n]\n\nThis analysis provides a comprehensive view of the company\'s market position and its main competitors.\n',
+      '\nBased on our analysis, we identified the following key aspects:\n\nCompany Profile:\nOkay, here\'s my analysis of the provided website data for RaiseGate:\n\n*1. Product/Service Categories:\n\n   *Core Service:* RaiseGate is a platform connecting startups seeking funding with Venture Capital (VC) firms and angel investors. It\'s a marketplace or matchmaking service.\n*   *AI-Powered Startup Discovery:\n    *   **Description:* Uses AI (Scout AI) to help investors discover startups that fit their investment criteria, eliminating manual research on platforms like LinkedIn and Twitter.\n    *   *Specifics:* Curates leads and streamlines the search for VCs.\n*   *Streamlined Data Rooms:\n    *   **Description:* Provides a secure and controlled environment for sharing information like pitch decks between startups and VCs.\n    *   *Specifics:* VCs can request pitch decks, and startups approve or decline, maintaining control.\n*   *Demo Videos:\n    *   **Description:* Allows startups to showcase their products and ideas directly to investors through dynamic videos.\n    *   *Specifics:* Helps investors quickly assess viability and potential.\n*   *Comprehensive Profiles:\n    *   **Description:* Detailed company information, team, market insights, business models, demo videos, and investment theses for each startup.\n*   *Deck Requests:\n    *   **Description:* Direct request functionality from VCs to startups for pitch decks, with startup approval needed.\n*   *Service Descriptions:\n    *   **For Startups:* Platform for visibility, access to investors, streamlined fundraising and access to mentorship/strategic advice.\n    *  *For Investors:* Access to curated startups, AI-powered discovery, time-saving tools, initial due diligence support.\n*   *Industry-Specific Terminology:\n    *   Venture Capital (VC)\n    *   Angel Investors\n    *   Startup\n    *   Pitch Decks\n    *   Data Room\n    *   Investment Criteria\n    *   Fundraising\n    *   Due Diligence\n    *   Investment Portfolio\n  *Target Market Segments:\n    *   Startups seeking funding (across various domains, including deep tech and consumer products).\n    *   Venture Capital Firms and Angel Investors.\n   *Core Problems Solved:\n    *   **For Startups:* Difficulty in reaching and being discovered by the right investors. Inefficiencies in the traditional fundraising process.\n    *   *For Investors:* Time-consuming manual scouting for startups. Difficulty in quickly assessing startup potential.\n    *   *Overall:* Connecting suitable startups with investors efficiently.\n\n*2. Business Model Identifiers:\n\n   *Pricing Structure Hints:\n    *   "No contracts, no hidden costs" - Suggests a possible subscription or usage-based model. However, specific pricing is not mentioned.\n    *  The statement "just tell us what you need and we\'ll deliver accordingly" suggests a potentially tailored pricing approach.\n   *Target Customer Size:\n    *   Targets both early-stage and potentially later stage startups, indicated by "from various domains".\n    *   Targets VC firms and Angel investors, implying a focus on those who make investments in startups.\n  *Sales Model:\n    *   Primarily a platform/marketplace model, connecting two distinct user groups (startups and investors).\n    *  Uses the concept of membership and early access. The platform also heavily promotes applying and joining.\n    *   Potentially, they have a freemium or subscription model (not explicitly stated).\n\n3. Market Positioning:\n\n   *Key Value Propositions:\n    *   **For Startups:* Increased visibility to a curated audience of investors, faster fundraising, and access to strategic resources.\n        *   "Be discovered by the leading VC firms and angel investors"\n        *  "60% Faster than going the traditional way"\n        *  "Grow Strategically"\n    *   *For Investors:* Streamlined, efficient startup discovery powered by AI, access to pre-vetted startups, saving time and effort in the sourcing process.\n        *  "Look through our curated assortment of startups"\n        *  "100+ We interview more than 100 startups every week"\n    *   *Overall:* A "cutting edge" solution, efficient, time-saving, and effective matchmaking platform.\n*   *Mission Statements (Implied):\n    *   To simplify and expedite the fundraising process for startups.\n    *   To enable VCs and angel investors to discover promising startups more efficiently.\n    * To streamline the connection of promising startups with capital.\n   *Partner Ecosystem (Implied):\n    *   VC Firms\n    *   Angel Investors\n    *   Startups from various sectors\n\nSummary:*\n\nRaiseGate positions itself as an AI-powered platform aimed at disrupting the traditional fundraising and deal sourcing process. It targets both startups seeking capital and investors seeking promising companies. Its core value proposition is to create a more efficient, streamlined, and data-driven experience for both sides of the equation. The website content focuses on highlighting the time-saving, curated, and direct approach the platform takes, differentiating it from manual and more cumbersome methods. They emphasize the use of technology like AI and the structure of data rooms to make their offering attractive.\n\n\nKey Search Terms:\nAI powered startup discovery platform, Venture capital deal sourcing platform, Startup fundraising platform\n\nTop Competitors Overview:\n[\n  {\n    "title": "Harmonic.ai - The complete startup database",\n    "link": "https://www.harmonic.ai/",\n    "snippet": "Our ever-growing database of 20M+ companies and 160M+ people ensures you\'re never missing an opportunity. Create, tune and save hyper-specific searches."\n  },\n  {\n    "title": "Access 4.7M+ Startups & Scaleups | StartUs Insights Platform",\n    "link": "https://www.startus-insights.com/startus-insights-platform/",\n    "snippet": "Dive into the world of innovation with the Big Data and AI-powered Discovery Platform, where discovering startups, technologies, and market trends is not just ..."\n  },\n  {\n    "title": "Deal Sourcing Tools for VC Investors",\n    "link": "https://www.vcstack.io/category/deal-sourcing",\n    "snippet": "We build a data-driven deal sourcing & due diligence engine for VC investors. OurCrowd. Democratizing access to private equity investing."\n  },\n  {\n    "title": "A Guide to Venture Capital Deal Sourcing",\n    "link": "https://www.cyndx.com/resources/blog/venture-capital-deal-sourcing/",\n    "snippet": "Cyndx Finder is an AI-enriched deal origination platform designed to empower venture capitalists in navigating the complex landscape of global ..."\n  },\n  {\n    "title": "Startup Fundraising Platform | FundrsVC",\n    "link": "https://fundrs.vc/",\n    "snippet": "FundrsVC offers a comprehensive and user-friendly platform that helps startup founders and early-stage investors navigate the fundraising process."\n  },\n  {\n    "title": "Fundable | Startup Fundraising Platform",\n    "link": "https://www.fundable.com/",\n    "snippet": "Startup Fundraising Platform. Start and manage a professional fundraise to attract quality accredited investors."\n  }\n]\n\nThis analysis provides a comprehensive view of the company\'s market position and its main competitors.\n',
+    social_analysis: {
+      reddit: {
+        analysis:
+          "The subreddit r/venturecapital reveals several key themes. There's a strong sentiment that many junior VCs lack real-world experience, leading to poor advice for founders. The community also discusses the challenges of fundraising, the importance of networking, and the debate around the use of AI in VC. The general consensus is that while VC is not dying, it's undergoing a transformation, with more emphasis on specialized knowledge and a shift from hype-driven investments to more strategic ones. There is also some criticism of the '30 under 30' lists as being more about self-promotion than actual investing acumen. A recurring pain point is the lack of good tooling and the reliance on spreadsheets and email, indicating a need for more advanced solutions. The most upvoted posts and comments often highlight the importance of genuine relationships and operational experience over surface level expertise.",
+        metrics: {
+          upvote_ratio_avg: "0.94",
+          comment_count_avg: "27",
+          recurring_themes: [
+            "lack of experience in junior VCs",
+            "importance of genuine relationships",
+            "need for better tooling",
+            "AI in VC",
+            "criticism of '30 under 30' lists",
+          ],
+        },
+      },
+      youtube: {
+        analysis:
+          "The YouTube search results reveal a mix of educational content and promotional material related to VC and startup fundraising. There are a few company created videos that show platforms for deal management and fund administration. There are also quite a few sponsored videos from channels like 'The Futur', which are educational videos with sponsors. The educational content covers topics like the basics of venture capital, fundraising strategies, and how to create a good pitch deck. There is a lack of videos from companies that are direct competitors offering similar services, indicating a relatively niche market. The sponsored videos highlight the growing trend of leveraging educational content for marketing purposes. The retention ratios of the sponsored segments vary depending on the channel, indicating the importance of channel authority and audience engagement.",
+        metrics: {
+          company_created_videos_count: 2,
+          sponsored_videos_count: 3,
+          sponsored_video_timestamps: [
+            {
+              channel: "The Futur",
+              sponsor_segment_timestamp: "0:00",
+              retention_ratio: "0.85",
+            },
+            {
+              channel: "The Futur",
+              sponsor_segment_timestamp: "5:30",
+              retention_ratio: "0.78",
+            },
+            {
+              channel: "Ali Abdaal",
+              sponsor_segment_timestamp: "0:00",
+              retention_ratio: "0.92",
+            },
+          ],
+        },
+      },
+      trustpilot: {
+        analysis: "No Trustpilot data available as there was no link provided.",
+        metrics: {},
+      },
+      user_pain_points: [
+        "Difficulty for startups in finding the right investors.",
+        "VCs wasting time on unqualified leads.",
+        "Lack of transparency in the fundraising process.",
+        "Inefficient methods of deal discovery and management.",
+        "Junior VCs lacking practical experience.",
+        "Reliance on outdated tools like spreadsheets and email.",
+        "Need for better ways to showcase startups to investors.",
+        "Desire for more authentic connections and less transactional interactions.",
+        "Need for more streamlined due diligence processes",
+      ],
+      ad_storyline:
+        "The ad campaign will focus on the pain points of both startups and VCs. It will highlight how RaiseGate streamlines deal flow, provides access to high-quality leads, and offers comprehensive tools for effective collaboration. The storyline will emphasize the platform's ability to eliminate the inefficiencies of traditional methods and foster genuine connections.",
+      hook: "Tired of endless LinkedIn searches and outdated spreadsheets? RaiseGate connects you to the right opportunities, faster. Whether you're a startup looking for funding or a VC seeking the next big thing, we've got you covered.",
+    },
   });
-  const competitorDets = [
-    {
-      user_pain_points: [
-        "Inconsistent product quality: Some customers report variations in material quality and print clarity across different skins, leading to dissatisfaction.",
-        "Delayed shipping and handling: Long processing times and slow shipping can be frustrating, especially for customers eager to customize their devices.",
-        "Difficult application process for some devices: While generally straightforward, the application of complex designs or skins on curved devices can be challenging and lead to errors.",
-      ],
-      trustpilot: {
-        trustscore: 3.7,
-        total_reviews: 583,
-        positive_reviews: 35,
-        negative_reviews: 496,
-        summary:
-          "Slickwraps' customer reviews paint a concerning picture with a very low percentage of five star reviews and a large majority of one star reviews. This suggests that many customers are experiencing significant issues with the product and/or service. There are major improvements required to improve customer satisfaction",
-      },
-      ad_storyline: {
-        hook: "Unleash Your Unique Style with Slickwraps! Endless Designs, Unmatched Customization.",
-        storyline:
-          "The ad opens with a montage of diverse devices transformed with vibrant and intricate Slickwraps designs. The ad highlights a design customization tool where you can upload designs from your own personal collection. Highlight the high quality of the finish and the durability of the skin with closeups. Next the ad shows a successful application process of a difficult design, indicating how easy it is to apply even the most complex designs. The ad finishes with a call to action to design your own personalized device with a discount for first time users, emphasizing the creativity and personalization that slickwraps offers.",
-      },
-    },
-    {
-      user_pain_points: [
-        "High price point: dbrand's premium pricing can be a barrier for some customers, making it less accessible for budget-conscious consumers.",
-        "Limited design flexibility: While dbrand offers high-quality materials, some users may find their designs and patterns to be more minimal and less expressive compared to competitors.",
-        "Customer service response times: Though rare, some users have reported slower than expected response times from customer service, especially during peak periods.",
-      ],
-      trustpilot: {
-        trustscore: 4.4,
-        total_reviews: 11993,
-        positive_reviews: 10433,
-        negative_reviews: 599,
-        summary:
-          "dbrand consistently receives very positive reviews, with a high majority of five-star ratings. This indicates strong customer satisfaction, specifically around the quality of the product and the service. Although there are a handful of negative reviews, these are few and far between and do not impact the overwhelming positive response. dbrand is well positioned to take on the market as a reliable high quality brand.",
-      },
-      ad_storyline: {
-        hook: "Experience the Precision of dbrand: Engineered for Excellence, Designed for You.",
-        storyline:
-          "The ad opens with sleek, robotic arms meticulously crafting dbrand skins with laser precision. Highlight the sophisticated technology behind dbrand materials and the clean, minimalist aesthetic of their designs. The ad showcases the ease of install, with a tutorial showing step by step instruction with no air bubbles. It also shows the wide range of devices the product can be applied to. The ad then features testimonials from satisfied customers praising durability and high quality. The ad ends by highlighting the technological advancements that are the company's backbone and the quality of the products, with a call to action to experience the dbrand difference, encouraging purchases from those who value quality and precision.",
-      },
-    },
-    {
-      user_pain_points: [
-        "Lower material quality compared to premium brands: Some customers find the materials used by MightySkins to be less durable and less premium-feeling compared to competitors.",
-        "Less design intricacy and variety: While offering a wide range of designs, they may lack the intricate details and unique styles found in more expensive options.",
-        "Potentially less precise fit on certain devices: Some users report minor fit issues or slight misalignment on specific device models.",
-      ],
-      trustpilot: {
-        trustscore: 1.5,
-        total_reviews: 130,
-        positive_reviews: 32,
-        negative_reviews: 81,
-        summary:
-          "MightySkins has very poor customer reviews, with a majority giving the brand a one star rating. This indicates low customer satisfaction and a general dissatisfaction with the quality of the product and the service offered. This suggests significant improvements need to be made.",
-      },
-      ad_storyline: {
-        hook: "Style Your Tech Without Breaking the Bank: MightySkins - Affordable Customization for Everyone.",
-        storyline:
-          "The ad starts with a montage of diverse people enjoying colorful and fun MightySkins on their devices, showing a wide range of devices. The ad highlights how easy it is to apply the product and the low prices of its products. Next, the ad showcases a family using a variety of products showing that they are suitable for all ages. The ad then shows testimonials from budget conscious customers praising the affordability. The ad ends with a call to action to browse the collections and start your custom device journey, emphasizing affordability and accessibility.",
-      },
-    },
-  ];
+  const youtubeMetrics = data.social_analysis.youtube.metrics;
+  const totalVideos =
+    youtubeMetrics.company_created_videos_count +
+    youtubeMetrics.sponsored_videos_count;
 
-  // Transform pain points for chart visualization
-  const painPointsData = analysis.user_pain_points.map((point, index) => ({
-    issue: point.pain_point,
-    count: Math.floor(Math.random() * 100) + 1, // Simulating frequency data
-  }));
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 1);
+    useEffect(() => {
+      const fetchData = async () => {
+        try {
+          setLoading(true);
+          const response = await fetch("/api/company-analysis");
+          if (!response.ok) throw new Error("Failed to fetch data");
+          const result = await response.json();
+          setData(result);
+        } catch (err) {
+          setError(err instanceof Error ? err.message : "An error occurred");
+        } finally {
+          setLoading(false);
+        }
+      };
 
-    // Cleanup the timer when the component unmounts
-    return () => clearTimeout(timer);
-  }, []);
+      fetchData();
+    }, []);
 
-  // Extract YouTube video IDs
-  const getYouTubeId = (url) => {
-    const match = url.match(
-      /(?:youtu\.be\/|youtube\.com(?:\/embed\/|\/v\/|\/watch\?v=|\/user\/\S+|\/ytscreeningroom\?v=|\/sandalsResorts#\w\/\w\/.*\/))([^\/&]{10,12})/
-    );
-    return match?.[1] || "";
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background p-6 pt-24">
-        <div className="mx-auto max-w-7xl space-y-8">
-          {/* Main Stats Cards */}
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {[...Array(3)].map((_, index) => (
-              <Card key={index}>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <div className="h-5 w-5 rounded-full bg-neutral-900 animate-pulse" />
-                    <div className="h-4 w-32 bg-neutral-900 rounded animate-pulse" />
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="h-8 w-24 bg-neutral-900 rounded animate-pulse mb-2" />
-                  <div className="h-4 w-40 bg-neutral-900 rounded animate-pulse" />
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          {/* Main Content Tabs */}
-          <Tabs defaultValue="analysis" className="space-y-4">
-            <TabsList>
-              {["Analysis", "Videos", "Pain Points", "Competitors"].map(
-                (tab) => (
-                  <TabsTrigger
-                    key={tab}
-                    value={tab.toLowerCase()}
-                    className="animate-pulse"
-                  >
-                    <div className="h-4 w-20 bg-neutral-900 rounded" />
-                  </TabsTrigger>
-                )
-              )}
-            </TabsList>
-
-            <TabsContent value="analysis" className="space-y-4">
-              {[...Array(2)].map((_, index) => (
-                <Card key={index}>
-                  <CardHeader>
-                    <CardTitle>
-                      <div className="h-6 w-48 bg-neutral-900 rounded animate-pulse" />
-                    </CardTitle>
-                    <div className="h-4 w-64 bg-neutral-900 rounded animate-pulse" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2">
-                      {[...Array(3)].map((_, i) => (
-                        <div
-                          key={i}
-                          className="h-4 bg-neutral-900 rounded animate-pulse"
-                        />
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </TabsContent>
-
-            <TabsContent value="videos" className="space-y-4">
-              {analysis.youtube.map((_, index) => (
-                <Card key={index}>
-                  <CardContent className="space-y-6">
-                    <div className="aspect-video bg-neutral-900 rounded animate-pulse" />
-                    <Alert>
-                      <div className="h-4 w-4 bg-neutral-900 rounded-full animate-pulse" />
-                      <AlertTitle>
-                        <div className="h-4 w-32 bg-neutral-900 rounded animate-pulse" />
-                      </AlertTitle>
-                      <AlertDescription>
-                        <div className="space-y-2">
-                          {[...Array(3)].map((_, i) => (
-                            <div
-                              key={i}
-                              className="h-4 bg-neutral-900 rounded animate-pulse"
-                            />
-                          ))}
-                        </div>
-                      </AlertDescription>
-                    </Alert>
-                  </CardContent>
-                </Card>
-              ))}
-            </TabsContent>
-
-            <TabsContent value="pain-points">
-              <Card>
-                <CardContent>
-                  <div className="h-[400px] bg-neutral-900 rounded animate-pulse mb-8" />
-                  <ScrollArea className="h-[200px]">
-                    <ul className="space-y-4">
-                      {[...Array(5)].map((_, index) => (
-                        <li key={index} className="flex items-start gap-2">
-                          <div className="h-5 w-5 bg-neutral-900 rounded-full animate-pulse mt-0.5" />
-                          <div className="h-4 w-full bg-neutral-900 rounded animate-pulse" />
-                        </li>
-                      ))}
-                    </ul>
-                  </ScrollArea>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
-
-          {/* Ad Strategy Section */}
-          <Card>
-            <CardHeader>
-              <CardTitle>
-                <div className="h-6 w-48 bg-neutral-900 rounded animate-pulse" />
-              </CardTitle>
-              <div className="h-4 w-64 bg-neutral-900 rounded animate-pulse" />
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                {[...Array(4)].map((_, i) => (
-                  <div
-                    key={i}
-                    className="h-4 bg-neutral-900 rounded animate-pulse"
-                  />
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-background p-6 pt-36">
@@ -336,27 +151,16 @@ const CompanyProjectPage = ({ slug }) => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Star className="h-5 w-5 text-yellow-400" />
-                Trustpilot Score
+                Reddit Engagement
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold">1.4/5.0</div>
+              <div className="text-3xl font-bold">
+                {data.social_analysis.reddit.metrics.upvote_ratio_avg}
+              </div>
               <p className="text-sm text-muted-foreground">
-                Based on 10,500+ reviews
+                Average upvote ratio
               </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <ThumbsDown className="h-5 w-5 text-red-500" />
-                Negative Reviews
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">67%</div>
-              <p className="text-sm text-muted-foreground">1-star reviews</p>
             </CardContent>
           </Card>
 
@@ -368,8 +172,23 @@ const CompanyProjectPage = ({ slug }) => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold">{data.youtube.length}</div>
+              <div className="text-3xl font-bold">{totalVideos}</div>
               <p className="text-sm text-muted-foreground">Videos analyzed</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <ThumbsDown className="h-5 w-5 text-red-500" />
+                Reddit Comments
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold">
+                {data.social_analysis.reddit.metrics.comment_count_avg}
+              </div>
+              <p className="text-sm text-muted-foreground">Average comments</p>
             </CardContent>
           </Card>
         </div>
@@ -386,146 +205,101 @@ const CompanyProjectPage = ({ slug }) => {
           <TabsContent value="analysis" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Reddit Sentiment Analysis</CardTitle>
-                <CardDescription>User feedback and discussions</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">{data.reddit}</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle>Trustpilot Overview</CardTitle>
-                <CardDescription>Customer reviews and ratings</CardDescription>
+                <CardTitle>Reddit Analysis</CardTitle>
+                <CardDescription>
+                  Community feedback and discussions
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  {data.trustpilot}
+                  {data.social_analysis.reddit.analysis}
                 </p>
+                <div className="mt-4">
+                  <h4 className="font-semibold mb-2">Recurring Themes:</h4>
+                  <ul className="list-disc pl-4 space-y-1">
+                    {data.social_analysis.reddit.metrics.recurring_themes.map(
+                      (theme, index) => (
+                        <li
+                          key={index}
+                          className="text-sm text-muted-foreground"
+                        >
+                          {theme}
+                        </li>
+                      )
+                    )}
+                  </ul>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
 
           <TabsContent value="videos" className="space-y-4">
-            {analysis.youtube.map((video, index) => (
-              <Card key={index}>
-                <CardContent className="space-y-6">
-                  <div className="aspect-video">
-                    <iframe
-                      className="w-full h-full rounded-lg"
-                      src={`https://www.youtube.com/embed/${getYouTubeId(
-                        video.link
-                      )}`}
-                      allowFullScreen
-                    />
-                  </div>
-                  <Alert>
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>Video Analysis</AlertTitle>
-                    <AlertDescription>{video.analysis}</AlertDescription>
-                  </Alert>
-                </CardContent>
-              </Card>
-            ))}
+            <Card>
+              <CardContent className="space-y-6">
+                <div className="grid gap-4">
+                  {data.social_analysis.youtube.metrics.sponsored_video_timestamps.map(
+                    (video, index) => (
+                      <Alert key={index}>
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertTitle>{video.channel}</AlertTitle>
+                        <AlertDescription>
+                          <p>Timestamp: {video.sponsor_segment_timestamp}</p>
+                          <p>Retention Ratio: {video.retention_ratio}</p>
+                        </AlertDescription>
+                      </Alert>
+                    )
+                  )}
+                </div>
+                <Alert>
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>Overall Analysis</AlertTitle>
+                  <AlertDescription>
+                    {data.social_analysis.youtube.analysis}
+                  </AlertDescription>
+                </Alert>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           <TabsContent value="pain-points">
             <Card>
               <CardContent>
-                <ScrollArea className="h-[200px] mt-8">
+                <ScrollArea className="h-[400px]">
                   <ul className="space-y-4">
-                    {analysis.user_pain_points.map((point, index) => (
-                      <li key={index} className="flex items-start gap-2">
-                        <AlertCircle className="h-5 w-5 text-red-500 mt-0.5" />
-                        <span>{point.pain_point}</span>
-                      </li>
-                    ))}
+                    {data.social_analysis.user_pain_points.map(
+                      (point, index) => (
+                        <li key={index} className="flex items-start gap-2">
+                          <AlertCircle className="h-5 w-5 text-red-500 mt-0.5" />
+                          <span>{point}</span>
+                        </li>
+                      )
+                    )}
                   </ul>
                 </ScrollArea>
               </CardContent>
             </Card>
           </TabsContent>
+
           <TabsContent value="competitors" className="space-y-4">
-            {competitors.competitors.map((competitor, index) => (
-              <Card key={index} className="mb-6">
+            {data.competitors.map((competitor, index) => (
+              <Card key={index}>
                 <CardHeader>
                   <CardTitle>{competitor.title}</CardTitle>
-                  <CardDescription className="text-sm">
-                    {competitor.snippet}
+                  <CardDescription>
+                    <a
+                      href={competitor.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-500 hover:underline"
+                    >
+                      {competitor.link}
+                    </a>
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-6">
-                  {/* Trustpilot Score */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="bg-background p-4 rounded-lg">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Star className="h-5 w-5 text-yellow-400" />
-                        <h3 className="font-semibold">Trust Score</h3>
-                      </div>
-                      <div className="text-2xl font-bold">
-                        {competitorDets[index].trustpilot.trustscore}/5.0
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        Based on{" "}
-                        {competitorDets[index].trustpilot.total_reviews} reviews
-                      </p>
-                    </div>
-                    <div className="bg-background p-4 rounded-lg">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Star className="h-5 w-5 text-green-500" />
-                        <h3 className="font-semibold">Positive Reviews</h3>
-                      </div>
-                      <div className="text-2xl font-bold">
-                        {competitorDets[index].trustpilot.positive_reviews}
-                      </div>
-                    </div>
-                    <div className="bg-background p-4 rounded-lg">
-                      <div className="flex items-center gap-2 mb-2">
-                        <ThumbsDown className="h-5 w-5 text-red-500" />
-                        <h3 className="font-semibold">Negative Reviews</h3>
-                      </div>
-                      <div className="text-2xl font-bold">
-                        {competitorDets[index].trustpilot.negative_reviews}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Pain Points */}
-                  <div>
-                    <h3 className="font-semibold mb-3">Key Pain Points</h3>
-                    <ul className="space-y-2">
-                      {competitorDets[index].user_pain_points.map(
-                        (point, i) => (
-                          <li key={i} className="flex items-start gap-2">
-                            <AlertCircle className="h-5 w-5 text-red-500 mt-0.5" />
-                            <span className="text-sm">{point}</span>
-                          </li>
-                        )
-                      )}
-                    </ul>
-                  </div>
-
-                  {/* Ad Strategy */}
-                  <div>
-                    <h3 className="font-semibold mb-3">Marketing Strategy</h3>
-                    <div className="bg-background p-4 rounded-lg">
-                      <p className="font-semibold text-sm mb-2">
-                        Hook: {competitorDets[index].ad_storyline.hook}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        {competitorDets[index].ad_storyline.storyline}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Trustpilot Summary */}
-                  <Alert>
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>Review Analysis</AlertTitle>
-                    <AlertDescription>
-                      {competitorDets[index].trustpilot.summary}
-                    </AlertDescription>
-                  </Alert>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">
+                    {competitor.snippet}
+                  </p>
                 </CardContent>
               </Card>
             ))}
@@ -535,23 +309,21 @@ const CompanyProjectPage = ({ slug }) => {
         {/* Ad Strategy Section */}
         <Card>
           <CardHeader>
-            <CardTitle>Proposed Ad Strategy</CardTitle>
+            <CardTitle>Marketing Strategy</CardTitle>
             <CardDescription>
-              Recommended advertising approach based on analysis
+              Recommended approach based on analysis
             </CardDescription>
           </CardHeader>
           <CardContent>
             <p className="font-semibold mb-2">
-              Hook: {analysis.ad_storyline.hook}
+              Hook: {data.social_analysis.hook}
             </p>
             <p className="text-sm text-muted-foreground">
-              {analysis.ad_storyline.storyline}
+              {data.social_analysis.ad_storyline}
             </p>
           </CardContent>
         </Card>
       </div>
     </div>
   );
-};
-
-export default CompanyProjectPage;
+}
