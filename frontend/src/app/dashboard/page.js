@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import CreateProjectCard from "@/components/CreateProjectCard";
-import { cn } from "@/lib/utils";
 import { Card, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useUser } from "@auth0/nextjs-auth0/client";
@@ -51,16 +50,60 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <div className="h-screen flex items-center justify-center bg-background">
-        <div
-          className={cn(
-            "w-full max-w-md p-8 space-y-4 bg-neutral-950 rounded-lg shadow-lg border",
-            "animate-pulse"
-          )}
-        >
-          <div className="h-12 bg-neutral-900 rounded-2xl border"></div>
-          <div className="h-12 bg-neutral-900 rounded-2xl border"></div>
-          <div className="h-12 bg-neutral-900 rounded-2xl border"></div>
+      <div className="min-h-screen bg-neutral-900 p-6 pt-48">
+        <div className="mx-auto max-w-7xl space-y-8">
+          {/* Recent Companies Section */}
+          <section className="space-y-6">
+            <div className="h-9 w-48 bg-neutral-800 rounded animate-pulse" />
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {/* Create Project Card Skeleton */}
+              <Card className="flex flex-col h-full w-full border-neutral-700">
+                <CardHeader className="flex-1">
+                  <div className="h-6 w-32 bg-neutral-800 rounded animate-pulse" />
+                </CardHeader>
+                <CardFooter className="border-t border-neutral-700 bg-neutral-800/50 px-6 py-4">
+                  <div className="h-4 w-24 bg-neutral-700 rounded animate-pulse" />
+                </CardFooter>
+              </Card>
+              {/* Company Card Skeletons */}
+              {[...Array(5)].map((_, index) => (
+                <Card
+                  key={index}
+                  className="flex flex-col h-full w-full border-neutral-700"
+                >
+                  <CardHeader className="flex-1">
+                    <CardTitle className="text-xl">
+                      <div className="h-6 w-32 bg-neutral-800 rounded animate-pulse" />
+                    </CardTitle>
+                  </CardHeader>
+                  <CardFooter className="border-t border-neutral-700 bg-neutral-800/50 px-6 py-4">
+                    <div className="h-4 w-24 bg-neutral-700 rounded animate-pulse" />
+                  </CardFooter>
+                </Card>
+              ))}
+            </div>
+          </section>
+
+          <Separator className="bg-neutral-700" />
+
+          {/* All Companies Section */}
+          <section className="space-y-6">
+            <div className="h-9 w-40 bg-neutral-800 rounded animate-pulse" />
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {[...Array(9)].map((_, index) => (
+                <Card key={index} className="flex flex-col border-neutral-700">
+                  <CardHeader className="flex-1">
+                    <CardTitle className="text-xl">
+                      <div className="h-6 w-32 bg-neutral-800 rounded animate-pulse" />
+                    </CardTitle>
+                  </CardHeader>
+                  <CardFooter className="border-t border-neutral-700 bg-neutral-800/50 px-6 py-4 rounded-b-xl">
+                    <div className="h-4 w-24 bg-neutral-700 rounded animate-pulse" />
+                  </CardFooter>
+                </Card>
+              ))}
+            </div>
+          </section>
         </div>
       </div>
     );
