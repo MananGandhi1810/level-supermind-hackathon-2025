@@ -1,0 +1,15 @@
+2025-01-19 07:22:48,746 - main - CRITICAL - [main.py:39] - Missing required environment variable: COMMENTS_API_KEY
+2025-01-19 07:23:34,474 - astrapy.database - INFO - [database.py:1022] - findCollections
+2025-01-19 07:23:35,245 - httpx - INFO - [_client.py:1038] - HTTP Request: POST https://76def820-552c-4b62-a2de-db7646bb920a-us-east1.apps.astra.datastax.com/api/json/v1/default_keyspace "HTTP/1.1 200 OK"
+2025-01-19 07:23:35,246 - astrapy.database - INFO - [database.py:1034] - finished findCollections
+2025-01-19 07:23:35,246 - main - INFO - [main.py:56] - Successfully initialized Gemini and Firecrawl
+2025-01-19 07:23:35,250 - main - INFO - [main.py:141] - Successfully initialized all Gemini models
+2025-01-19 07:25:16,543 - main - INFO - [main.py:461] - Starting competitor analysis
+2025-01-19 07:25:21,414 - main - INFO - [main.py:466] - Successfully scraped website data
+2025-01-19 07:25:32,273 - main - INFO - [main.py:474] - Completed website analysis
+2025-01-19 07:25:33,152 - main - INFO - [main.py:484] - Generated 3 search queries
+2025-01-19 07:25:33,221 - main - INFO - [main.py:507] - Completed search 1/3: customizable phone skins
+2025-01-19 07:25:33,266 - main - INFO - [main.py:507] - Completed search 2/3: laptop vinyl wraps
+2025-01-19 07:25:34,327 - main - INFO - [main.py:507] - Completed search 3/3: 3M device skins
+2025-01-19 07:25:34,328 - main - INFO - [main.py:525] - Processed 3 search results
+2025-01-19 07:25:36,991 - main - INFO - [main.py:537] - Identified 3 top competitors
