@@ -1,0 +1,20 @@
+services:
+  lsa-backend:
+    build: ./backend
+    container_name: lsa-backend
+    restart: unless-stopped
+    ports:
+      - 8080:8080/tcp
+    env_file:
+      - .env
+
+  lsa-frontend:
+    build: ./lrontend
+    container_name: lsa-frontend
+    restart: unless-stopped
+    ports:
+      - 3000:3000/tcp
+    depends_on:
+      - lsa-backend
+    env_file:
+      - .env
