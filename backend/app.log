@@ -212,3 +212,17 @@
 2025-01-19 05:36:56,973 - astrapy.database - INFO - [database.py:1034] - finished findCollections
 2025-01-19 05:36:56,973 - main - INFO - [main.py:47] - Successfully initialized Gemini and Firecrawl
 2025-01-19 05:36:56,976 - main - INFO - [main.py:130] - Successfully initialized all Gemini models
+2025-01-19 05:37:31,346 - astrapy.database - INFO - [database.py:1022] - findCollections
+2025-01-19 05:37:32,806 - httpx - INFO - [_client.py:1038] - HTTP Request: POST https://76def820-552c-4b62-a2de-db7646bb920a-us-east1.apps.astra.datastax.com/api/json/v1/default_keyspace "HTTP/1.1 200 OK"
+2025-01-19 05:37:32,807 - astrapy.database - INFO - [database.py:1034] - finished findCollections
+2025-01-19 05:37:32,807 - main - INFO - [main.py:47] - Successfully initialized Gemini and Firecrawl
+2025-01-19 05:37:32,809 - main - INFO - [main.py:130] - Successfully initialized all Gemini models
+2025-01-19 05:37:35,652 - main - INFO - [main.py:138] - Starting competitor analysis
+2025-01-19 05:37:39,668 - main - INFO - [main.py:143] - Successfully scraped website data
+2025-01-19 05:37:47,659 - main - INFO - [main.py:151] - Completed website analysis
+2025-01-19 05:37:48,672 - main - INFO - [main.py:161] - Generated 3 search queries
+2025-01-19 05:37:51,760 - main - INFO - [main.py:184] - Completed search 1/3: streaming service on-demand movies and tv shows
+2025-01-19 05:37:52,796 - main - INFO - [main.py:184] - Completed search 2/3: subscription based video streaming service
+2025-01-19 05:37:54,860 - main - INFO - [main.py:184] - Completed search 3/3: online video streaming platform original content
+2025-01-19 05:37:54,860 - main - INFO - [main.py:202] - Processed 3 search results
+2025-01-19 05:37:57,492 - main - INFO - [main.py:214] - Identified 3 top competitors
