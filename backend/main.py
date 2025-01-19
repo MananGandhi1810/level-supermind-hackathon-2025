@@ -21,6 +21,7 @@ import io
 import numpy as np
 import warnings
 import asyncio
+from fastapi.middleware.cors import CORSMiddleware
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 warnings.filterwarnings("ignore", category=RuntimeWarning)
@@ -77,6 +78,13 @@ print(f"Connected to Astra DB: {db.list_collection_names()}")
 
 # Initialize FastAPI app
 app = FastAPI(title="Unified Analysis API")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 try:
     # Configure Gemini
