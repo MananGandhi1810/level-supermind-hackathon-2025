@@ -1,0 +1,214 @@
+2025-01-19 04:14:33,846 - main - INFO - [main.py:39] - Successfully initialized Gemini and Firecrawl
+2025-01-19 04:14:33,851 - main - INFO - [main.py:122] - Successfully initialized all Gemini models
+2025-01-19 04:15:17,211 - main - INFO - [main.py:39] - Successfully initialized Gemini and Firecrawl
+2025-01-19 04:15:17,215 - main - INFO - [main.py:122] - Successfully initialized all Gemini models
+2025-01-19 04:16:17,353 - main - INFO - [main.py:130] - Starting competitor analysis for URL: https://www.firecrawl.dev/
+2025-01-19 04:16:22,647 - main - INFO - [main.py:135] - Successfully scraped website data: 2 characters
+2025-01-19 04:16:34,173 - main - INFO - [main.py:143] - Completed website analysis
+2025-01-19 04:16:35,248 - main - INFO - [main.py:153] - Generated 5 search queries
+2025-01-19 04:16:38,586 - main - INFO - [main.py:176] - Completed search 1/5: web scraping API for LLM training data
+2025-01-19 04:16:41,453 - main - INFO - [main.py:176] - Completed search 2/5: dynamic content web crawler markdown output
+2025-01-19 04:16:43,096 - main - INFO - [main.py:176] - Completed search 3/5: javascript rendering web scraper
+2025-01-19 04:16:46,233 - main - INFO - [main.py:176] - Completed search 4/5: website data extraction for AI
+2025-01-19 04:16:47,826 - main - INFO - [main.py:176] - Completed search 5/5: web scraping with no rate limits
+2025-01-19 04:16:47,827 - main - INFO - [main.py:194] - Processed 5 search results
+2025-01-19 04:16:52,143 - main - INFO - [main.py:206] - Identified 5 top competitors
+2025-01-19 04:18:04,129 - main - INFO - [main.py:39] - Successfully initialized Gemini and Firecrawl
+2025-01-19 04:18:04,132 - main - INFO - [main.py:122] - Successfully initialized all Gemini models
+2025-01-19 04:19:04,093 - main - INFO - [main.py:39] - Successfully initialized Gemini and Firecrawl
+2025-01-19 04:19:04,101 - main - INFO - [main.py:120] - Successfully initialized all Gemini models
+2025-01-19 04:19:28,537 - main - INFO - [main.py:39] - Successfully initialized Gemini and Firecrawl
+2025-01-19 04:19:28,541 - main - INFO - [main.py:120] - Successfully initialized all Gemini models
+2025-01-19 04:28:54,980 - main - INFO - [main.py:128] - Starting competitor analysis for URL: https://dbrand.com/
+2025-01-19 04:28:59,266 - main - INFO - [main.py:133] - Successfully scraped website data
+2025-01-19 04:29:09,975 - main - INFO - [main.py:141] - Completed website analysis
+2025-01-19 04:29:11,057 - main - INFO - [main.py:151] - Generated 5 search queries
+2025-01-19 04:29:15,184 - main - INFO - [main.py:174] - Completed search 1/5: customizable skins for electronics
+2025-01-19 04:29:17,763 - main - INFO - [main.py:174] - Completed search 2/5: premium phone cases with high grip
+2025-01-19 04:29:23,012 - main - INFO - [main.py:174] - Completed search 3/5: unique design screen protectors
+2025-01-19 04:29:25,640 - main - INFO - [main.py:174] - Completed search 4/5: protective plates for gaming consoles
+2025-01-19 04:29:26,745 - main - INFO - [main.py:174] - Completed search 5/5: branded accessories for tech devices
+2025-01-19 04:29:26,746 - main - INFO - [main.py:192] - Processed 5 search results
+2025-01-19 04:29:31,499 - main - INFO - [main.py:204] - Identified 5 top competitors
+2025-01-19 04:30:33,911 - main - INFO - [main.py:128] - Starting competitor analysis for URL: https://www.layers.shop/
+2025-01-19 04:30:38,232 - main - INFO - [main.py:133] - Successfully scraped website data
+2025-01-19 04:30:45,545 - main - INFO - [main.py:141] - Completed website analysis
+2025-01-19 04:30:46,597 - main - INFO - [main.py:151] - Generated 5 search queries
+2025-01-19 04:30:49,904 - main - INFO - [main.py:174] - Completed search 1/5: smartwatch with unique octagonal design
+2025-01-19 04:30:53,024 - main - INFO - [main.py:174] - Completed search 2/5: stainless steel smartwatch fitness tracker
+2025-01-19 04:30:55,148 - main - INFO - [main.py:174] - Completed search 3/5: high performance smartwatch long battery life
+2025-01-19 04:30:57,173 - main - INFO - [main.py:174] - Completed search 4/5: fashion focused smartwatch
+2025-01-19 04:30:59,376 - main - INFO - [main.py:174] - Completed search 5/5: smartwatch with haptic feedback crown
+2025-01-19 04:30:59,377 - main - INFO - [main.py:192] - Processed 5 search results
+2025-01-19 04:31:04,410 - main - INFO - [main.py:204] - Identified 5 top competitors
+2025-01-19 04:33:11,102 - main - INFO - [main.py:39] - Successfully initialized Gemini and Firecrawl
+2025-01-19 04:33:11,105 - main - INFO - [main.py:120] - Successfully initialized all Gemini models
+2025-01-19 04:33:22,578 - main - INFO - [main.py:39] - Successfully initialized Gemini and Firecrawl
+2025-01-19 04:33:22,580 - main - INFO - [main.py:120] - Successfully initialized all Gemini models
+2025-01-19 04:33:26,852 - main - INFO - [main.py:39] - Successfully initialized Gemini and Firecrawl
+2025-01-19 04:33:26,857 - main - INFO - [main.py:120] - Successfully initialized all Gemini models
+2025-01-19 04:34:25,623 - main - INFO - [main.py:128] - Starting competitor analysis for URL: https://www.nvidia.com/en-in/
+2025-01-19 04:34:31,064 - main - INFO - [main.py:133] - Successfully scraped website data
+2025-01-19 04:34:46,789 - main - INFO - [main.py:141] - Completed website analysis
+2025-01-19 04:34:47,888 - main - INFO - [main.py:151] - Generated 5 search queries
+2025-01-19 04:34:49,863 - main - INFO - [main.py:174] - Completed search 1/5: High-performance GPU manufacturer
+2025-01-19 04:34:51,514 - main - INFO - [main.py:174] - Completed search 2/5: AI software development platform
+2025-01-19 04:34:56,237 - main - INFO - [main.py:174] - Completed search 3/5: Autonomous vehicle technology provider
+2025-01-19 04:34:57,397 - main - INFO - [main.py:174] - Completed search 4/5: Robotics simulation software
+2025-01-19 04:35:00,559 - main - INFO - [main.py:174] - Completed search 5/5: Cloud-based AI supercomputing service
+2025-01-19 04:35:00,560 - main - INFO - [main.py:192] - Processed 5 search results
+2025-01-19 04:35:04,744 - main - INFO - [main.py:204] - Identified 5 top competitors
+2025-01-19 04:35:54,247 - main - INFO - [main.py:128] - Starting competitor analysis for URL: https://www.intel.com
+2025-01-19 04:35:58,871 - main - INFO - [main.py:133] - Successfully scraped website data
+2025-01-19 04:36:07,874 - main - INFO - [main.py:141] - Completed website analysis
+2025-01-19 04:36:08,869 - main - INFO - [main.py:151] - Generated 5 search queries
+2025-01-19 04:36:11,523 - main - INFO - [main.py:174] - Completed search 1/5: AI hardware solutions
+2025-01-19 04:36:13,442 - main - INFO - [main.py:174] - Completed search 2/5: enterprise AI platforms
+2025-01-19 04:36:15,338 - main - INFO - [main.py:174] - Completed search 3/5: AI developer tools
+2025-01-19 04:36:16,532 - main - INFO - [main.py:174] - Completed search 4/5: AI PC processors
+2025-01-19 04:36:19,080 - main - INFO - [main.py:174] - Completed search 5/5: AI cloud solutions
+2025-01-19 04:36:19,081 - main - INFO - [main.py:192] - Processed 5 search results
+2025-01-19 04:36:21,701 - main - INFO - [main.py:204] - Identified 3 top competitors
+2025-01-19 04:37:40,752 - main - INFO - [main.py:128] - Starting competitor analysis for URL: https://www.intel.com/content/www/us/en/products/overview.html
+2025-01-19 04:37:49,590 - main - INFO - [main.py:133] - Successfully scraped website data
+2025-01-19 04:38:00,231 - main - INFO - [main.py:141] - Completed website analysis
+2025-01-19 04:38:01,279 - main - INFO - [main.py:151] - Generated 5 search queries
+2025-01-19 04:38:04,223 - main - INFO - [main.py:174] - Completed search 1/5: high performance processor manufacturers
+2025-01-19 04:38:06,235 - main - INFO - [main.py:174] - Completed search 2/5: AI accelerator hardware companies
+2025-01-19 04:38:09,437 - main - INFO - [main.py:174] - Completed search 3/5: FPGA and programmable logic vendors
+2025-01-19 04:38:12,083 - main - INFO - [main.py:174] - Completed search 4/5: data center networking solutions providers
+2025-01-19 04:38:13,050 - main - INFO - [main.py:174] - Completed search 5/5: enterprise security software developers
+2025-01-19 04:38:13,051 - main - INFO - [main.py:192] - Processed 5 search results
+2025-01-19 04:38:15,888 - main - INFO - [main.py:204] - Identified 3 top competitors
+2025-01-19 04:39:09,834 - main - INFO - [main.py:39] - Successfully initialized Gemini and Firecrawl
+2025-01-19 04:39:09,838 - main - INFO - [main.py:120] - Successfully initialized all Gemini models
+2025-01-19 04:39:14,550 - main - INFO - [main.py:39] - Successfully initialized Gemini and Firecrawl
+2025-01-19 04:39:14,554 - main - INFO - [main.py:120] - Successfully initialized all Gemini models
+2025-01-19 04:39:27,174 - main - INFO - [main.py:39] - Successfully initialized Gemini and Firecrawl
+2025-01-19 04:39:27,176 - main - INFO - [main.py:120] - Successfully initialized all Gemini models
+2025-01-19 04:39:36,473 - main - INFO - [main.py:128] - Starting competitor analysis for URL: https://www.intel.com/content/www/us/en/products/overview.html
+2025-01-19 04:39:41,808 - main - INFO - [main.py:133] - Successfully scraped website data
+2025-01-19 04:39:55,334 - main - INFO - [main.py:141] - Completed website analysis
+2025-01-19 04:39:56,453 - main - INFO - [main.py:151] - Generated 5 search queries
+2025-01-19 04:39:58,612 - main - INFO - [main.py:174] - Completed search 1/5: high performance CPU manufacturers
+2025-01-19 04:39:58,681 - main - INFO - [main.py:174] - Completed search 2/5: AI accelerator hardware companies
+2025-01-19 04:39:58,887 - main - INFO - [main.py:174] - Completed search 3/5: FPGA and programmable logic vendors
+2025-01-19 04:39:58,955 - main - INFO - [main.py:174] - Completed search 4/5: data center networking solutions providers
+2025-01-19 04:40:00,994 - main - INFO - [main.py:174] - Completed search 5/5: enterprise grade security software companies
+2025-01-19 04:40:00,995 - main - INFO - [main.py:192] - Processed 5 search results
+2025-01-19 04:40:03,619 - main - INFO - [main.py:204] - Identified 3 top competitors
+2025-01-19 05:24:47,434 - astrapy.database - INFO - [database.py:1022] - findCollections
+2025-01-19 05:24:48,326 - httpx - INFO - [_client.py:1038] - HTTP Request: POST https://76def820-552c-4b62-a2de-db7646bb920a-us-east1.apps.astra.datastax.com/api/json/v1/default_keyspace "HTTP/1.1 200 OK"
+2025-01-19 05:24:48,328 - astrapy.database - INFO - [database.py:1034] - finished findCollections
+2025-01-19 05:24:48,330 - main - INFO - [main.py:47] - Successfully initialized Gemini and Firecrawl
+2025-01-19 05:24:48,334 - main - INFO - [main.py:129] - Successfully initialized all Gemini models
+2025-01-19 05:24:53,716 - main - INFO - [main.py:137] - Starting competitor analysis for URL
+2025-01-19 05:25:00,398 - main - INFO - [main.py:142] - Successfully scraped website data
+2025-01-19 05:25:08,598 - main - INFO - [main.py:150] - Completed website analysis
+2025-01-19 05:25:09,724 - main - INFO - [main.py:160] - Generated 5 search queries
+2025-01-19 05:25:11,843 - main - INFO - [main.py:183] - Completed search 1/5: on demand movie and tv streaming service
+2025-01-19 05:25:13,744 - main - INFO - [main.py:183] - Completed search 2/5: subscription based video service
+2025-01-19 05:25:16,072 - main - INFO - [main.py:183] - Completed search 3/5: family friendly streaming service with parental controls
+2025-01-19 05:25:17,758 - main - INFO - [main.py:183] - Completed search 4/5: multi device compatible streaming platform
+2025-01-19 05:25:18,736 - main - INFO - [main.py:183] - Completed search 5/5: offline viewing streaming service
+2025-01-19 05:25:18,737 - main - INFO - [main.py:201] - Processed 5 search results
+2025-01-19 05:25:21,114 - main - INFO - [main.py:213] - Identified 3 top competitors
+2025-01-19 05:27:18,083 - astrapy.database - INFO - [database.py:1022] - findCollections
+2025-01-19 05:27:18,865 - httpx - INFO - [_client.py:1038] - HTTP Request: POST https://76def820-552c-4b62-a2de-db7646bb920a-us-east1.apps.astra.datastax.com/api/json/v1/default_keyspace "HTTP/1.1 200 OK"
+2025-01-19 05:27:18,867 - astrapy.database - INFO - [database.py:1034] - finished findCollections
+2025-01-19 05:27:18,868 - main - INFO - [main.py:47] - Successfully initialized Gemini and Firecrawl
+2025-01-19 05:27:18,873 - main - INFO - [main.py:130] - Successfully initialized all Gemini models
+2025-01-19 05:27:30,535 - main - INFO - [main.py:138] - Starting competitor analysis for URL
+2025-01-19 05:27:35,646 - main - INFO - [main.py:143] - Successfully scraped website data
+2025-01-19 05:27:44,761 - main - INFO - [main.py:151] - Completed website analysis
+2025-01-19 05:27:45,814 - main - INFO - [main.py:161] - Generated 5 search queries
+2025-01-19 05:27:45,885 - main - INFO - [main.py:184] - Completed search 1/5: on demand movie and tv streaming service
+2025-01-19 05:27:45,957 - main - INFO - [main.py:184] - Completed search 2/5: subscription based video service
+2025-01-19 05:27:47,739 - main - INFO - [main.py:184] - Completed search 3/5: digital content streaming platform
+2025-01-19 05:27:50,015 - main - INFO - [main.py:184] - Completed search 4/5: streaming service with downloadable content
+2025-01-19 05:27:52,217 - main - INFO - [main.py:184] - Completed search 5/5: family friendly streaming service
+2025-01-19 05:27:52,218 - main - INFO - [main.py:202] - Processed 5 search results
+2025-01-19 05:27:54,481 - main - INFO - [main.py:214] - Identified 3 top competitors
+2025-01-19 05:30:40,547 - astrapy.database - INFO - [database.py:1022] - findCollections
+2025-01-19 05:30:41,357 - httpx - INFO - [_client.py:1038] - HTTP Request: POST https://76def820-552c-4b62-a2de-db7646bb920a-us-east1.apps.astra.datastax.com/api/json/v1/default_keyspace "HTTP/1.1 200 OK"
+2025-01-19 05:30:41,358 - astrapy.database - INFO - [database.py:1034] - finished findCollections
+2025-01-19 05:30:41,359 - main - INFO - [main.py:47] - Successfully initialized Gemini and Firecrawl
+2025-01-19 05:30:41,362 - main - INFO - [main.py:130] - Successfully initialized all Gemini models
+2025-01-19 05:30:44,026 - astrapy.database - INFO - [database.py:1022] - findCollections
+2025-01-19 05:30:44,764 - httpx - INFO - [_client.py:1038] - HTTP Request: POST https://76def820-552c-4b62-a2de-db7646bb920a-us-east1.apps.astra.datastax.com/api/json/v1/default_keyspace "HTTP/1.1 200 OK"
+2025-01-19 05:30:44,765 - astrapy.database - INFO - [database.py:1034] - finished findCollections
+2025-01-19 05:30:44,765 - main - INFO - [main.py:47] - Successfully initialized Gemini and Firecrawl
+2025-01-19 05:30:44,767 - main - INFO - [main.py:130] - Successfully initialized all Gemini models
+2025-01-19 05:32:27,631 - astrapy.database - INFO - [database.py:1022] - findCollections
+2025-01-19 05:32:28,403 - httpx - INFO - [_client.py:1038] - HTTP Request: POST https://76def820-552c-4b62-a2de-db7646bb920a-us-east1.apps.astra.datastax.com/api/json/v1/default_keyspace "HTTP/1.1 200 OK"
+2025-01-19 05:32:28,403 - astrapy.database - INFO - [database.py:1034] - finished findCollections
+2025-01-19 05:32:28,405 - main - INFO - [main.py:47] - Successfully initialized Gemini and Firecrawl
+2025-01-19 05:32:28,407 - main - INFO - [main.py:130] - Successfully initialized all Gemini models
+2025-01-19 05:33:27,756 - astrapy.database - INFO - [database.py:1022] - findCollections
+2025-01-19 05:33:28,503 - httpx - INFO - [_client.py:1038] - HTTP Request: POST https://76def820-552c-4b62-a2de-db7646bb920a-us-east1.apps.astra.datastax.com/api/json/v1/default_keyspace "HTTP/1.1 200 OK"
+2025-01-19 05:33:28,504 - astrapy.database - INFO - [database.py:1034] - finished findCollections
+2025-01-19 05:33:28,504 - main - INFO - [main.py:47] - Successfully initialized Gemini and Firecrawl
+2025-01-19 05:33:28,506 - main - INFO - [main.py:130] - Successfully initialized all Gemini models
+2025-01-19 05:33:31,901 - astrapy.database - INFO - [database.py:1022] - findCollections
+2025-01-19 05:33:32,685 - httpx - INFO - [_client.py:1038] - HTTP Request: POST https://76def820-552c-4b62-a2de-db7646bb920a-us-east1.apps.astra.datastax.com/api/json/v1/default_keyspace "HTTP/1.1 200 OK"
+2025-01-19 05:33:32,686 - astrapy.database - INFO - [database.py:1034] - finished findCollections
+2025-01-19 05:33:32,687 - main - INFO - [main.py:47] - Successfully initialized Gemini and Firecrawl
+2025-01-19 05:33:32,689 - main - INFO - [main.py:130] - Successfully initialized all Gemini models
+2025-01-19 05:33:48,918 - astrapy.database - INFO - [database.py:1022] - findCollections
+2025-01-19 05:33:49,635 - httpx - INFO - [_client.py:1038] - HTTP Request: POST https://76def820-552c-4b62-a2de-db7646bb920a-us-east1.apps.astra.datastax.com/api/json/v1/default_keyspace "HTTP/1.1 200 OK"
+2025-01-19 05:33:49,636 - astrapy.database - INFO - [database.py:1034] - finished findCollections
+2025-01-19 05:33:49,638 - main - INFO - [main.py:47] - Successfully initialized Gemini and Firecrawl
+2025-01-19 05:33:49,641 - main - INFO - [main.py:130] - Successfully initialized all Gemini models
+2025-01-19 05:33:55,616 - astrapy.database - INFO - [database.py:1022] - findCollections
+2025-01-19 05:33:56,408 - httpx - INFO - [_client.py:1038] - HTTP Request: POST https://76def820-552c-4b62-a2de-db7646bb920a-us-east1.apps.astra.datastax.com/api/json/v1/default_keyspace "HTTP/1.1 200 OK"
+2025-01-19 05:33:56,409 - astrapy.database - INFO - [database.py:1034] - finished findCollections
+2025-01-19 05:33:56,410 - main - INFO - [main.py:47] - Successfully initialized Gemini and Firecrawl
+2025-01-19 05:33:56,412 - main - INFO - [main.py:130] - Successfully initialized all Gemini models
+2025-01-19 05:33:58,805 - astrapy.database - INFO - [database.py:1022] - findCollections
+2025-01-19 05:33:59,522 - httpx - INFO - [_client.py:1038] - HTTP Request: POST https://76def820-552c-4b62-a2de-db7646bb920a-us-east1.apps.astra.datastax.com/api/json/v1/default_keyspace "HTTP/1.1 200 OK"
+2025-01-19 05:33:59,524 - astrapy.database - INFO - [database.py:1034] - finished findCollections
+2025-01-19 05:33:59,525 - main - INFO - [main.py:47] - Successfully initialized Gemini and Firecrawl
+2025-01-19 05:33:59,527 - main - INFO - [main.py:130] - Successfully initialized all Gemini models
+2025-01-19 05:34:13,056 - main - INFO - [main.py:138] - Starting competitor analysis for URL
+2025-01-19 05:34:20,773 - main - INFO - [main.py:143] - Successfully scraped website data
+2025-01-19 05:34:28,918 - main - INFO - [main.py:151] - Completed website analysis
+2025-01-19 05:34:29,878 - main - INFO - [main.py:161] - Generated 3 search queries
+2025-01-19 05:34:30,831 - main - INFO - [main.py:184] - Completed search 1/3: streaming service on-demand video content
+2025-01-19 05:34:31,685 - main - INFO - [main.py:184] - Completed search 2/3: downloadable content for offline viewing
+2025-01-19 05:34:33,077 - main - INFO - [main.py:184] - Completed search 3/3: family-friendly streaming service parental controls
+2025-01-19 05:34:33,077 - main - INFO - [main.py:202] - Processed 3 search results
+2025-01-19 05:34:35,601 - main - INFO - [main.py:214] - Identified 3 top competitors
+2025-01-19 05:35:15,687 - astrapy.database - INFO - [database.py:1022] - findCollections
+2025-01-19 05:35:16,504 - httpx - INFO - [_client.py:1038] - HTTP Request: POST https://76def820-552c-4b62-a2de-db7646bb920a-us-east1.apps.astra.datastax.com/api/json/v1/default_keyspace "HTTP/1.1 200 OK"
+2025-01-19 05:35:16,505 - astrapy.database - INFO - [database.py:1034] - finished findCollections
+2025-01-19 05:35:16,506 - main - INFO - [main.py:47] - Successfully initialized Gemini and Firecrawl
+2025-01-19 05:35:16,509 - main - INFO - [main.py:130] - Successfully initialized all Gemini models
+2025-01-19 05:35:19,993 - astrapy.database - INFO - [database.py:1022] - findCollections
+2025-01-19 05:35:20,704 - httpx - INFO - [_client.py:1038] - HTTP Request: POST https://76def820-552c-4b62-a2de-db7646bb920a-us-east1.apps.astra.datastax.com/api/json/v1/default_keyspace "HTTP/1.1 200 OK"
+2025-01-19 05:35:20,705 - astrapy.database - INFO - [database.py:1034] - finished findCollections
+2025-01-19 05:35:20,706 - main - INFO - [main.py:47] - Successfully initialized Gemini and Firecrawl
+2025-01-19 05:35:20,710 - main - INFO - [main.py:130] - Successfully initialized all Gemini models
+2025-01-19 05:35:23,764 - astrapy.database - INFO - [database.py:1022] - findCollections
+2025-01-19 05:35:24,488 - httpx - INFO - [_client.py:1038] - HTTP Request: POST https://76def820-552c-4b62-a2de-db7646bb920a-us-east1.apps.astra.datastax.com/api/json/v1/default_keyspace "HTTP/1.1 200 OK"
+2025-01-19 05:35:24,489 - astrapy.database - INFO - [database.py:1034] - finished findCollections
+2025-01-19 05:35:24,491 - main - INFO - [main.py:47] - Successfully initialized Gemini and Firecrawl
+2025-01-19 05:35:24,494 - main - INFO - [main.py:130] - Successfully initialized all Gemini models
+2025-01-19 05:35:35,500 - astrapy.database - INFO - [database.py:1022] - findCollections
+2025-01-19 05:35:36,369 - httpx - INFO - [_client.py:1038] - HTTP Request: POST https://76def820-552c-4b62-a2de-db7646bb920a-us-east1.apps.astra.datastax.com/api/json/v1/default_keyspace "HTTP/1.1 200 OK"
+2025-01-19 05:35:36,370 - astrapy.database - INFO - [database.py:1034] - finished findCollections
+2025-01-19 05:35:36,371 - main - INFO - [main.py:47] - Successfully initialized Gemini and Firecrawl
+2025-01-19 05:35:36,373 - main - INFO - [main.py:130] - Successfully initialized all Gemini models
+2025-01-19 05:35:36,875 - main - INFO - [main.py:138] - Starting competitor analysis for URL
+2025-01-19 05:35:41,470 - main - INFO - [main.py:143] - Successfully scraped website data
+2025-01-19 05:35:50,395 - main - INFO - [main.py:151] - Completed website analysis
+2025-01-19 05:35:51,265 - main - INFO - [main.py:161] - Generated 3 search queries
+2025-01-19 05:35:52,605 - main - INFO - [main.py:184] - Completed search 1/3: streaming service with original content
+2025-01-19 05:35:55,844 - main - INFO - [main.py:184] - Completed search 2/3: on-demand movie and tv show platform
+2025-01-19 05:35:55,895 - main - INFO - [main.py:184] - Completed search 3/3: subscription based video service
+2025-01-19 05:35:55,896 - main - INFO - [main.py:202] - Processed 3 search results
+2025-01-19 05:35:58,120 - main - INFO - [main.py:214] - Identified 3 top competitors
+2025-01-19 05:36:56,245 - astrapy.database - INFO - [database.py:1022] - findCollections
+2025-01-19 05:36:56,972 - httpx - INFO - [_client.py:1038] - HTTP Request: POST https://76def820-552c-4b62-a2de-db7646bb920a-us-east1.apps.astra.datastax.com/api/json/v1/default_keyspace "HTTP/1.1 200 OK"
+2025-01-19 05:36:56,973 - astrapy.database - INFO - [database.py:1034] - finished findCollections
+2025-01-19 05:36:56,973 - main - INFO - [main.py:47] - Successfully initialized Gemini and Firecrawl
+2025-01-19 05:36:56,976 - main - INFO - [main.py:130] - Successfully initialized all Gemini models
