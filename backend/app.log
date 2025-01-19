@@ -248,4 +248,21 @@
 2025-01-19 09:02:17,169 - astrapy.database - INFO - [database.py:1034] - finished findCollections
 2025-01-19 09:02:17,171 - main - INFO - [main.py:57] - Successfully initialized Gemini and Firecrawl
 2025-01-19 09:02:17,176 - main - INFO - [main.py:140] - Successfully initialized all Gemini models
-jn
+jn2025-01-19 09:06:08,954 - main - INFO - [main.py:148] - Starting competitor analysis
+2025-01-19 09:06:16,373 - main - INFO - [main.py:153] - Successfully scraped website data
+2025-01-19 09:06:26,449 - main - INFO - [main.py:161] - Completed website analysis
+2025-01-19 09:06:27,609 - main - INFO - [main.py:171] - Generated 3 search queries
+2025-01-19 09:06:27,692 - main - INFO - [main.py:194] - Completed search 1/3: customizable phone skins
+2025-01-19 09:06:27,740 - main - INFO - [main.py:194] - Completed search 2/3: 3M vinyl wraps for electronics
+2025-01-19 09:06:29,725 - main - INFO - [main.py:194] - Completed search 3/3: textured laptop skins
+2025-01-19 09:06:29,726 - main - INFO - [main.py:212] - Processed 3 search results
+2025-01-19 09:06:32,400 - main - INFO - [main.py:224] - Identified 3 top competitors
+2025-01-19 09:06:32,406 - main - INFO - [main.py:148] - Starting competitor analysis
+2025-01-19 09:06:40,950 - main - INFO - [main.py:153] - Successfully scraped website data
+2025-01-19 09:06:48,565 - main - INFO - [main.py:161] - Completed website analysis
+2025-01-19 09:06:49,591 - main - INFO - [main.py:171] - Generated 3 search queries
+2025-01-19 09:06:49,643 - main - INFO - [main.py:194] - Completed search 1/3: customizable phone skins
+2025-01-19 09:06:49,702 - main - INFO - [main.py:194] - Completed search 2/3: 3M vinyl wraps
+2025-01-19 09:06:52,967 - main - INFO - [main.py:194] - Completed search 3/3: mobile device scratch protection
+2025-01-19 09:06:52,968 - main - INFO - [main.py:212] - Processed 3 search results
+2025-01-19 09:06:55,475 - main - INFO - [main.py:224] - Identified 3 top competitors
