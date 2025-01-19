@@ -57,86 +57,98 @@ def scrape_yt(url: str) -> str:
         info = ydl.extract_info(url, download=False)
         output["Description"] = info.get("description", "No description available.")
 
-        # Get English subtitles
-        en_subtitle = info.get("requested_subtitles", {}).get("en") or info.get(
-            "requested_subtitles", {}
-        ).get("en-auto")
-
-        # Get sponsor segments
-        sponsor_segments = []
-        response = requests.get(
-            f"https://sponsor.ajay.app/api/skipSegments?videoID={info['id']}&category=sponsor"
-        )
-        if response.status_code == 200:
-            sponsor_segments = response.json()
-
-        # Get retention data
-        retention_data = info.get("heatmap")
-
-        # Calculate Sponsorship Retention Ratio. It is the median of the sponsor retention values divided by the median of the non-sponsor retention values.
-        if retention_data:
-            sponsor_retention = []
-            non_sponsor_retention = []
-            for segment in sponsor_segments:
-                start, end = segment["segment"]
-                for retention in retention_data:
-                    if (
-                        start <= retention["start_time"]
-                        and end >= retention["end_time"]
-                    ):
-                        sponsor_retention.append(retention["value"])
-                    else:
-                        non_sponsor_retention.append(retention["value"])
-            output["Sponsorship Retention Ratio"] = round(
-                (np.median(sponsor_retention) / np.median(non_sponsor_retention)), 4
+        try:
+            # Get sponsor segments
+            sponsor_segments = []
+            response = requests.get(
+                f"https://sponsor.ajay.app/api/skipSegments?videoID={info['id']}&category=sponsor"
             )
-        else:
+            if response.status_code == 200:
+                sponsor_segments = response.json()
+        except:
+            sponsor_segments = []
+
+        try:
+            # Get retention data
+            retention_data = info.get("heatmap")
+
+            # Calculate Sponsorship Retention Ratio. It is the median of the sponsor retention values divided by the median of the non-sponsor retention values.
+            if retention_data:
+                sponsor_retention = []
+                non_sponsor_retention = []
+                for segment in sponsor_segments:
+                    start, end = segment["segment"]
+                    for retention in retention_data:
+                        if (
+                            start <= retention["start_time"]
+                            and end >= retention["end_time"]
+                        ):
+                            sponsor_retention.append(retention["value"])
+                        else:
+                            non_sponsor_retention.append(retention["value"])
+                output["Sponsorship Retention Ratio"] = round(
+                    (np.median(sponsor_retention) / np.median(non_sponsor_retention)), 4
+                )
+            else:
+                output["Sponsorship Retention Ratio"] = -1
+        except:
             output["Sponsorship Retention Ratio"] = -1
 
-        # Process sponsor transcript from subtitles
-        if en_subtitle and sponsor_segments:
-            subtitle_url = en_subtitle["url"]
-            subtitle_content = ydl.urlopen(subtitle_url).read().decode("utf-8")
-            vtt = webvtt.read_buffer(io.StringIO(subtitle_content))
+        try:
+            # Get English subtitles
+            en_subtitle = info.get("requested_subtitles", {}).get("en") or info.get(
+                "requested_subtitles", {}
+            ).get("en-auto")
 
-            seen_lines = set()
-            for segment in sponsor_segments:
-                start, end = segment["segment"]
-                for caption in vtt:
-                    if (
-                        start <= caption.start_in_seconds <= end
-                        or start <= caption.end_in_seconds <= end
-                    ):
-                        for line in caption.text.strip().splitlines():
-                            if line not in seen_lines:
-                                output["Sponsor Transcript"] += line + " "
-                                seen_lines.add(line)
-        else:
-            output["Sponsor Transcript"] = (
-                "No sponsor segments or English subtitles available."
+            # Process sponsor transcript from subtitles
+            if en_subtitle and sponsor_segments:
+                subtitle_url = en_subtitle["url"]
+                subtitle_content = ydl.urlopen(subtitle_url).read().decode("utf-8")
+                vtt = webvtt.read_buffer(io.StringIO(subtitle_content))
+
+                seen_lines = set()
+                for segment in sponsor_segments:
+                    start, end = segment["segment"]
+                    for caption in vtt:
+                        if (
+                            start <= caption.start_in_seconds <= end
+                            or start <= caption.end_in_seconds <= end
+                        ):
+                            for line in caption.text.strip().splitlines():
+                                if line not in seen_lines:
+                                    output["Sponsor Transcript"] += line + " "
+                                    seen_lines.add(line)
+            else:
+                output["Sponsor Transcript"] = (
+                    "No sponsor segments or English subtitles available."
+                )
+        except:
+            output["Sponsor Transcript"] = "No sponsor segments or English subtitles available."
+
+        try:
+            # Get comments
+            video_id = url.split("=")[-1]
+            params = {
+                "part": "snippet",
+                "videoId": video_id,
+                "maxResults": "50",
+                "textFormat": "plainText",
+                "key": os.environ.get("COMMENTS_API_KEY"),
+            }
+
+            response = requests.get(
+                "https://www.googleapis.com/youtube/v3/commentThreads",
+                params=params,
+                headers={"Referer": "https://ytcomment.kmcat.uk/"},
             )
 
-        # Get comments
-        video_id = url.split("=")[-1]
-        params = {
-            "part": "snippet",
-            "videoId": video_id,
-            "maxResults": "50",
-            "textFormat": "plainText",
-            "key": os.environ.get("COMMENTS_API_KEY"),
-        }
-
-        response = requests.get(
-            "https://www.googleapis.com/youtube/v3/commentThreads",
-            params=params,
-            headers={"Referer": "https://ytcomment.kmcat.uk/"},
-        )
-
-        # Extract comments
-        output["Comments"] = [
-            comment["snippet"]["topLevelComment"]["snippet"]["textDisplay"].strip()
-            for comment in response.json().get("items", [])
-        ]
+            # Extract comments
+            output["Comments"] = [
+                comment["snippet"]["topLevelComment"]["snippet"]["textDisplay"].strip()
+                for comment in response.json().get("items", [])
+            ]
+        except:
+            output["Comments"] = []
 
         return output
 
@@ -159,14 +171,17 @@ def scrape_reddit(subreddit: str) -> dict:
     if response.status_code == 200:
         data = response.json()
         for i in range(10):
-            output[i] = {
-                "title": data["data"]["children"][i]["data"]["title"],
-                "description": data["data"]["children"][i]["data"]["selftext"],
-                "url": "https://www.reddit.com"
-                + data["data"]["children"][i]["data"]["permalink"],
-                "upvote_ratio": data["data"]["children"][i]["data"]["upvote_ratio"],
-                "comments": {},
-            }
+            try:
+                output[i] = {
+                    "title": data["data"]["children"][i]["data"]["title"],
+                    "description": data["data"]["children"][i]["data"]["selftext"],
+                    "url": "https://www.reddit.com"
+                    + data["data"]["children"][i]["data"]["permalink"],
+                    "upvote_ratio": data["data"]["children"][i]["data"]["upvote_ratio"],
+                    "comments": {},
+                }
+            except:
+                break
     else:
         print("Failed to fetch data from Reddit")
         print(response.status_code)
