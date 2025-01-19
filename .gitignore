@@ -1,2 +1,3 @@
 agent/.env
 .env
+backend/app.log
