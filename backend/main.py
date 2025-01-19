@@ -10,6 +10,7 @@ import traceback
 from dotenv import load_dotenv
 from firecrawl import FirecrawlApp
 from astrapy import DataAPIClient
+from fastapi.middleware.cors import CORSMiddleware
 
 # Configure detailed logging
 logging.basicConfig(
@@ -39,6 +40,15 @@ db = client.get_database_by_api_endpoint(
 print(f"Connected to Astra DB: {db.list_collection_names()}")
 # Initialize FastAPI app
 app = FastAPI(title="Competitor Search API")
+
+# Configure CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 try:
     # Configure Gemini

@@ -212,3 +212,40 @@
 2025-01-19 05:36:56,973 - astrapy.database - INFO - [database.py:1034] - finished findCollections
 2025-01-19 05:36:56,973 - main - INFO - [main.py:47] - Successfully initialized Gemini and Firecrawl
 2025-01-19 05:36:56,976 - main - INFO - [main.py:130] - Successfully initialized all Gemini models
+2025-01-19 08:53:34,108 - main - CRITICAL - [main.py:30] - Missing required environment variable: GEMINI_KEY
+2025-01-19 08:54:52,124 - main - CRITICAL - [main.py:30] - Missing required environment variable: ASTRADB_KEY
+2025-01-19 08:56:04,089 - astrapy.database - INFO - [database.py:1022] - findCollections
+2025-01-19 08:56:06,551 - httpx - INFO - [_client.py:1038] - HTTP Request: POST https://76def820-552c-4b62-a2de-db7646bb920a-us-east1.apps.astra.datastax.com/api/json/v1/default_keyspace "HTTP/1.1 200 OK"
+2025-01-19 08:56:06,553 - astrapy.database - INFO - [database.py:1034] - finished findCollections
+2025-01-19 08:56:06,555 - main - INFO - [main.py:47] - Successfully initialized Gemini and Firecrawl
+2025-01-19 08:56:06,559 - main - INFO - [main.py:130] - Successfully initialized all Gemini models
+2025-01-19 08:57:00,725 - main - INFO - [main.py:138] - Starting competitor analysis
+2025-01-19 08:57:07,626 - main - INFO - [main.py:143] - Successfully scraped website data
+2025-01-19 08:57:16,766 - main - INFO - [main.py:151] - Completed website analysis
+2025-01-19 08:57:18,102 - main - INFO - [main.py:161] - Generated 3 search queries
+2025-01-19 08:57:19,508 - main - INFO - [main.py:184] - Completed search 1/3: companies that sell custom phone skins
+2025-01-19 08:57:24,195 - main - INFO - [main.py:184] - Completed search 2/3: companies that sell 3M vinyl wraps for electronics
+2025-01-19 08:57:26,510 - main - INFO - [main.py:184] - Completed search 3/3: companies that sell protective skins for laptops
+2025-01-19 08:57:26,511 - main - INFO - [main.py:202] - Processed 3 search results
+2025-01-19 08:57:29,090 - main - INFO - [main.py:214] - Identified 3 top competitors
+2025-01-19 08:58:06,079 - astrapy.database - INFO - [database.py:1022] - findCollections
+2025-01-19 08:58:06,889 - httpx - INFO - [_client.py:1038] - HTTP Request: POST https://76def820-552c-4b62-a2de-db7646bb920a-us-east1.apps.astra.datastax.com/api/json/v1/default_keyspace "HTTP/1.1 200 OK"
+2025-01-19 08:58:06,891 - astrapy.database - INFO - [database.py:1034] - finished findCollections
+2025-01-19 08:58:06,893 - main - INFO - [main.py:48] - Successfully initialized Gemini and Firecrawl
+2025-01-19 08:58:06,898 - main - INFO - [main.py:131] - Successfully initialized all Gemini models
+2025-01-19 08:58:12,865 - astrapy.database - INFO - [database.py:1022] - findCollections
+2025-01-19 08:58:13,557 - httpx - INFO - [_client.py:1038] - HTTP Request: POST https://76def820-552c-4b62-a2de-db7646bb920a-us-east1.apps.astra.datastax.com/api/json/v1/default_keyspace "HTTP/1.1 200 OK"
+2025-01-19 08:58:13,559 - astrapy.database - INFO - [database.py:1034] - finished findCollections
+2025-01-19 08:58:13,560 - main - INFO - [main.py:57] - Successfully initialized Gemini and Firecrawl
+2025-01-19 08:58:13,564 - main - INFO - [main.py:140] - Successfully initialized all Gemini models
+2025-01-19 09:01:56,724 - astrapy.database - INFO - [database.py:1022] - findCollections
+2025-01-19 09:01:57,563 - httpx - INFO - [_client.py:1038] - HTTP Request: POST https://76def820-552c-4b62-a2de-db7646bb920a-us-east1.apps.astra.datastax.com/api/json/v1/default_keyspace "HTTP/1.1 200 OK"
+2025-01-19 09:01:57,565 - astrapy.database - INFO - [database.py:1034] - finished findCollections
+2025-01-19 09:01:57,566 - main - INFO - [main.py:57] - Successfully initialized Gemini and Firecrawl
+2025-01-19 09:01:57,570 - main - INFO - [main.py:140] - Successfully initialized all Gemini models
+2025-01-19 09:02:16,404 - astrapy.database - INFO - [database.py:1022] - findCollections
+2025-01-19 09:02:17,166 - httpx - INFO - [_client.py:1038] - HTTP Request: POST https://76def820-552c-4b62-a2de-db7646bb920a-us-east1.apps.astra.datastax.com/api/json/v1/default_keyspace "HTTP/1.1 200 OK"
+2025-01-19 09:02:17,169 - astrapy.database - INFO - [database.py:1034] - finished findCollections
+2025-01-19 09:02:17,171 - main - INFO - [main.py:57] - Successfully initialized Gemini and Firecrawl
+2025-01-19 09:02:17,176 - main - INFO - [main.py:140] - Successfully initialized all Gemini models
+jn
