@@ -10,6 +10,19 @@ import traceback
 from dotenv import load_dotenv
 from firecrawl import FirecrawlApp
 from astrapy import DataAPIClient
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain.agents import tool, AgentExecutor, create_react_agent
+from langchain_core.messages import AIMessage, HumanMessage
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+import yt_dlp
+import webvtt
+import io
+import numpy as np
+import warnings
+import asyncio
+
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+warnings.filterwarnings("ignore", category=RuntimeWarning)
 
 # Configure detailed logging
 logging.basicConfig(
@@ -22,23 +35,41 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+class CompetitorSearchRequest(BaseModel):
+    url: str
+
+
+class CompetitorSearchResponse(BaseModel):
+    competitors: List[Dict[str, Any]]
+
+
+def format_log_to_messages(intermediate_steps):
+    """Construct the scratchpad that lets the agent continue its thought process."""
+    thoughts = []
+    for action, observation in intermediate_steps:
+        thoughts.append(AIMessage(content=action.log))
+        human_message = HumanMessage(content=f"Observation: {observation}")
+        thoughts.append(human_message)
+    return thoughts
+
 # Load environment variables
 load_dotenv()
-required_env_vars = ["GEMINI_KEY", "FIRECRAWL_KEY", "SERPAPI_KEY", "ASTRADB_KEY"]
+required_env_vars = ["GEMINI_KEY", "FIRECRAWL_KEY", "SERPAPI_KEY", "ASTRADB_KEY", "GEMINI_API_KEY"]
 for var in required_env_vars:
     if not os.getenv(var):
         logger.critical(f"Missing required environment variable: {var}")
         raise EnvironmentError(f"Missing required environment variable: {var}")
 
-#Initialize AstraDB
+# Initialize AstraDB
 client = DataAPIClient(os.getenv("ASTRADB_KEY"))
 db = client.get_database_by_api_endpoint(
-  "https://76def820-552c-4b62-a2de-db7646bb920a-us-east1.apps.astra.datastax.com"
+    "https://76def820-552c-4b62-a2de-db7646bb920a-us-east1.apps.astra.datastax.com"
 )
 
 print(f"Connected to Astra DB: {db.list_collection_names()}")
+
 # Initialize FastAPI app
-app = FastAPI(title="Competitor Search API")
+app = FastAPI(title="Unified Analysis API")
 
 try:
     # Configure Gemini
@@ -66,15 +97,14 @@ structured_gemini_generation_config = {
 }
 
 # Pydantic models
-class SearchQueries(BaseModel):
-    queries: List[str]
-
-class CompetitorSearchRequest(BaseModel):
+class UnifiedRequest(BaseModel):
     url: str
+    company_name: str
 
-class CompetitorSearchResponse(BaseModel):
+class UnifiedResponse(BaseModel):
     competitors: List[Dict]
     analysis: str
+    social_analysis: Dict
 
 # System prompts
 analysis_system_prompt = """Adopt the role of a website analyst. You will be provided the scraped markdown data of a given website, from this site, you are to recognise the following:
@@ -132,14 +162,216 @@ except Exception as e:
     logger.critical(f"Failed to initialize Gemini models: {str(e)}\n{traceback.format_exc()}")
     raise
 
-@app.post("/analyze-competitors", response_model=CompetitorSearchResponse)
-async def analyze_competitors(request: CompetitorSearchRequest):
+# Tools for agent
+@tool
+def scrape_url(url: str) -> str:
+    """
+    Returns data in HTML by scraping the url. Provide full link: https://{domain}/{path(s)}
+    """
+    url = url.strip().replace("\n", "").replace("'", "").replace('"', "")
+    print(f"Requesting URL: {url}")
+    response = requests.get(url)
+    return response.content
+
+@tool
+def scrape_yt(url: str) -> str:
+    """
+    Get description and transcript for any youtube video. Provide full link: https://youtube.com/watch?v={videoId}
+    """
+    url = url.strip().replace("'", "").replace('"', "").replace("\n", "")
+    print(f"Scraping YouTube: {url}")
+
+    ydl_opts = {
+        "quiet": True,
+        "skip_download": True,
+        "writesubtitles": True,
+        "writeautomaticsub": True,
+        "writeinfojson": False,
+    }
+
+    if "youtube.com/shorts" in url:
+        return "Cannot scrape YouTube Shorts, try some other long form video"
+
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        output = {
+            "Description": "",
+            "Sponsor Transcript": "",
+            "Sponsorship Retention Ratio": 1,
+            "Comments": [],
+        }
+        info = ydl.extract_info(url, download=False)
+        output["Description"] = info.get("description", "No description available.")
+
+        try:
+            # Get sponsor segments
+            sponsor_segments = []
+            response = requests.get(
+                f"https://sponsor.ajay.app/api/skipSegments?videoID={info['id']}&category=sponsor"
+            )
+            if response.status_code == 200:
+                sponsor_segments = response.json()
+        except:
+            sponsor_segments = []
+
+        try:
+            # Get retention data
+            retention_data = info.get("heatmap")
+            if retention_data and sponsor_segments:
+                sponsor_retention = []
+                non_sponsor_retention = []
+                for segment in sponsor_segments:
+                    start, end = segment["segment"]
+                    for retention in retention_data:
+                        if start <= retention["start_time"] and end >= retention["end_time"]:
+                            sponsor_retention.append(retention["value"])
+                        else:
+                            non_sponsor_retention.append(retention["value"])
+                output["Sponsorship Retention Ratio"] = round(
+                    (np.median(sponsor_retention) / np.median(non_sponsor_retention)), 4
+                )
+            else:
+                output["Sponsorship Retention Ratio"] = -1
+        except:
+            output["Sponsorship Retention Ratio"] = -1
+
+        try:
+            # Get English subtitles and process sponsor transcript
+            en_subtitle = info.get("requested_subtitles", {}).get("en") or info.get(
+                "requested_subtitles", {}
+            ).get("en-auto")
+
+            if en_subtitle and sponsor_segments:
+                subtitle_url = en_subtitle["url"]
+                subtitle_content = ydl.urlopen(subtitle_url).read().decode("utf-8")
+                vtt = webvtt.read_buffer(io.StringIO(subtitle_content))
+
+                seen_lines = set()
+                for segment in sponsor_segments:
+                    start, end = segment["segment"]
+                    for caption in vtt:
+                        if (
+                            start <= caption.start_in_seconds <= end
+                            or start <= caption.end_in_seconds <= end
+                        ):
+                            for line in caption.text.strip().splitlines():
+                                if line not in seen_lines:
+                                    output["Sponsor Transcript"] += line + " "
+                                    seen_lines.add(line)
+            else:
+                output["Sponsor Transcript"] = "No sponsor segments or English subtitles available."
+        except:
+            output["Sponsor Transcript"] = "No sponsor segments or English subtitles available."
+
+        return output
+
+@tool
+def search_youtube(search_query: str) -> dict:
+    """
+    Search for a query on YouTube and return the top 5 results as a dictionary.
+    """
+    search_query = search_query.strip().replace("\n", "").replace("'", "").replace('"', "")
+    print(f"Searching YouTube: {search_query}")
+    ydl_opts = {
+        "quiet": True,
+        "no_warnings": True,
+        "extract_flat": "in_playlist",
+        "geo_bypass": True,
+        "noplaylist": True,
+        "postprocessor_args": ["-match_lang", "en"],
+    }
+    try:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            result = yt_dlp.YoutubeDL(ydl_opts).extract_info(f"ytsearch50:{search_query}", download=False)
+            videos = result.get("entries", [])
+            sorted_videos = sorted(
+                videos, key=lambda x: x.get("view_count", 0), reverse=True
+            )
+            top_videos = {
+                i: {
+                    "title": video.get("title", "Unknown"),
+                    "url": video.get("url", ""),
+                }
+                for i, video in enumerate(sorted_videos[:5])
+            }
+            return top_videos
+    except Exception as e:
+        return {"error": str(e)}
+
+# Initialize LangChain components
+llm = ChatGoogleGenerativeAI(
+    model="gemini-1.0-pro",
+    api_key=os.getenv("GEMINI_API_KEY"),
+)
+
+tools = [scrape_url, scrape_yt, search_youtube]
+
+system_prompt = """{
+  "mode": "JSON",
+  "instructions": "Answer all questions with detailed, data-backed insights and numerical metrics. Extract, analyze, and compare measurable outcomes from YouTube, Reddit, and TrustPilot. Every platform's analysis must contain precise numbers, percentages, and comparative benchmarks. Focus on actionable insights backed by granular metrics.",
+  "tools": "{tools}",
+  "rules": [
+    { "id": 1, "rule": "Use scrape_url for extracting data from specific URLs only." },
+    { "id": 2, "rule": "Use scrape_yt to analyze video descriptions, transcripts, retention metrics, and audience engagement." },
+    { "id": 3, "rule": "Use scrape_reddit to collect subreddit data and identify recurring themes with percentages." },
+    { "id": 4, "rule": "Use search_youtube to find videos using refined queries. Limit to 2 calls per task." },
+    { "id": 5, "rule": "Do not use scrape_url for YouTube video searches." },
+    { "id": 6, "rule": "Do not auto-generate YouTube video IDs." },
+    { "id": 7, "rule": "Exclude YouTube Shorts from the analysis." }
+  ],
+  "objective": "Your role is to gather and analyze company-related insights through YouTube, Reddit, and TrustPilot data. Prioritize measurable, numbers-driven insights to highlight trends, identify user pain points, and propose data-backed advertisement strategies.",
+  "tasks": [
+    {
+      "id": "query_refinement",
+      "description": "Generate at least 5 refined YouTube search queries for the company or product, using specific keywords. Each query must be distinct and designed to maximize relevant results."
+    },
+    {
+      "id": "youtube_analysis",
+      "description": "Search for 4 videos (2 advertisements, 2 sponsored videos) using refined queries. Analyze video retention, watch times, likes, dislikes, comments, and timestamps with the highest retention percentages. Provide a full breakdown of retention patterns, comparing retention hotspots."
+    },
+    {
+      "id": "reddit_analysis",
+      "description": "Analyze subreddit discussions with metrics like the total number of posts, comments per post, upvotes, and sentiment polarity. Identify common pain points or praises with percentages of mentions and recurring keywords."
+    },
+    {
+      "id": "trustpilot_analysis",
+      "description": "Review TrustPilot feedback to calculate satisfaction rates, percentage breakdown of review types, and common trends. Compare the company's ratings with industry averages and highlight strengths or weaknesses numerically."
+    },
+    {
+      "id": "ad_storyline",
+      "description": "Develop a storyline for a new ad campaign based on data insights. Use timestamps from YouTube retention, pain points from Reddit, and numerical claims from TrustPilot to make the ad relatable and impactful."
+    }
+  ]
+}"""
+
+prompt = ChatPromptTemplate.from_messages(
+    [
+        ("system", system_prompt),
+        MessagesPlaceholder(variable_name="chat_history"),
+        ("user", "{input}"),
+        ("assistant", "Scratchpad: {agent_scratchpad}"),
+    ]
+)
+
+llm_with_tools = llm.bind_tools(tools)
+agent = create_react_agent(
+    tools=tools,
+    llm=llm,
+    prompt=prompt,
+)
+agent_executor = AgentExecutor(
+    agent=agent,
+    tools=tools,
+    return_intermediate_steps=True,
+    handle_parsing_errors=True,
+)
+
+async def analyze_competitors_task(request_url: str):
     try:
         logger.info(f"Starting competitor analysis")
         
         # Scrape website data
         try:
-            data = fcapp.scrape_url(request.url)
+            data = fcapp.scrape_url(request_url)
             logger.info(f"Successfully scraped website data")
         except Exception as e:
             logger.error(f"Failed to scrape URL: {str(e)}\n{traceback.format_exc()}")
@@ -244,6 +476,43 @@ This analysis provides a comprehensive view of the company's market position and
         logger.error(f"Unexpected error during competitor analysis: {str(e)}\n{traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
 
+async def analyze_social_task(company_name: str):
+    try:
+        result = agent_executor.invoke(
+            {
+                "input": company_name,
+                "chat_history": [],
+                "agent_scratchpad": format_log_to_messages([]),
+            }
+        )
+        return json.loads(result["output"].replace("```json", "").replace("```", "").strip("\"").strip("'").replace("\\n", ""))
+    except Exception as e:
+        logger.error(f"Error in social analysis: {str(e)}")
+        raise
+
+@app.post("/unified-analysis")
+async def unified_analysis(request: UnifiedRequest):
+    try:
+        # Run both analyses concurrently
+        competitor_task = asyncio.create_task(analyze_competitors_task(request.url))
+        social_task = asyncio.create_task(analyze_social_task(request.company_name))
+
+        # Wait for both tasks to complete
+        competitor_result, social_result = await asyncio.gather(competitor_task, social_task)
+
+        return UnifiedResponse(
+            competitors=competitor_result.competitors,
+            analysis=competitor_result.analysis,
+            social_analysis=social_result
+        )
+    except Exception as e:
+        logger.error(f"Error in unified analysis: {str(e)}\n{traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.get("/health")
 async def health_check():
-    return {"status": "healthy"} 
+    return {"status": "healthy"}
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000) 

@@ -5,4 +5,10 @@ google-generativeai==0.3.2
 requests==2.31.0
 pydantic==2.6.1
 firecrawl==0.1.0
-python-multipart==0.0.9 
+python-multipart==0.0.9
+langchain-google-genai==0.0.5
+langchain==0.1.1
+yt-dlp==2023.12.30
+webvtt-py==0.4.6
+numpy==1.26.3
+astrapy==0.7.4 
