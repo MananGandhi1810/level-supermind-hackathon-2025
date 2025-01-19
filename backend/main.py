@@ -374,8 +374,9 @@ def format_log_to_messages(intermediate_steps):
     return thoughts
 
 # Initialize the ad analysis agent
+load_dotenv()
 llm = ChatGoogleGenerativeAI(
-    model="gemini-1.5-flash",
+    model="gemini-1.0-pro",
     api_key=os.environ.get("GEMINI_KEY"),
 )
 tools = [scrape_url, scrape_yt, search_youtube, scrape_reddit]
@@ -383,59 +384,151 @@ prompt = ChatPromptTemplate.from_messages(
     [
         (
             "system",
-            """JSON MODE ON
-Answer the following questions as best you can. You have access to the following tools:
-{tools}
-
-USE the scrape_url tool ot search for any URL
-USE the scrape_yt tool if you need to get the description and transcript of a youtube video
-USE the scrape_reddit tool to get data from subreddits
-USE the search_youtube tool to get a list of youtube videos related to the search query
-DO NOT USE scrape_url to search for youtube videos at all or else the 
-DO NOT auto-generate youtube video IDs
-DO NOT call the search_youtube tool more than 2 times
-
-You are an ad-bot which can process data about a company based on the reddit reviews, youtube video description and transcript and the trustpilot reviews.
-You need to search for advertisements on youtube sponsored by the company, and get relevant results and insights
-Search for 2 company-created advertisements/commercials, and 2 sponsored videos by the company
-Generate an advertisement story-line and a hook to create an advertisement for a company in the similar field
-
-Always give a verbose response to the user
-
-To get data about a company sponsoring a video:
-1. Search YouTube using the search_youtube tool
-2. Check the description and transcript for the resultant videos, and if they actually sponsor the video using the scrape_yt tool
-3. If the video is sponsored by the company, redo the process if multiple results are required. If not, check back for another video
-ONLY follow this process and no other way
-
-Always search *YouTube, Reddit, and TrustPilot* before responding to the user
-
-SEARCH GOOGLE IF YOU NEED ANY HELP
-
-Use the following format:
-
-Question: the input question you must answer
-
-Thought: you should always think about what to do
-
-Action: the action to take, should be one of [{tool_names}]
-
-Action Input: the input to the action
-
-Observation: the result of the action
-
-... (this Thought/Action/Action Input/Observation can repeat N times)
-
-Thought: I now know the final answer
-
-Final Answer: the final answer to the original input question. The final output SHOULD be in JSON
-reddit: provide analysis using reddit,
-youtube: provide youtube video links (compulsory) sponsored by the company along with an analysis (at least 2 videos as a list),
-user_pain_points: provide user pain points related to the product based on user feedback
-trustpilot: provide analysis of the reviews from trustpilot
-ad_storyline: provide a storyline with a hook for the advertisement
-
-Begin!""",
+            """{
+  "mode": "JSON",
+  "instructions": "Answer all questions with detailed, data-backed insights and numerical metrics. Extract, analyze, and compare measurable outcomes from YouTube, Reddit, and TrustPilot. Every platform’s analysis must contain precise numbers, percentages, and comparative benchmarks. Focus on actionable insights backed by granular metrics.",
+  "tools": "{tools}",
+  "rules": [
+    { "id": 1, "rule": "Use scrape_url for extracting data from specific URLs only." },
+    { "id": 2, "rule": "Use scrape_yt to analyze video descriptions, transcripts, retention metrics, and audience engagement." },
+    { "id": 3, "rule": "Use scrape_reddit to collect subreddit data and identify recurring themes with percentages." },
+    { "id": 4, "rule": "Use search_youtube to find videos using refined queries. Limit to 2 calls per task." },
+    { "id": 5, "rule": "Do not use scrape_url for YouTube video searches." },
+    { "id": 6, "rule": "Do not auto-generate YouTube video IDs." },
+    { "id": 7, "rule": "Exclude YouTube Shorts from the analysis." }
+  ],
+  "objective": "Your role is to gather and analyze company-related insights through YouTube, Reddit, and TrustPilot data. Prioritize measurable, numbers-driven insights to highlight trends, identify user pain points, and propose data-backed advertisement strategies.",
+  "tasks": [
+    {
+      "id": "query_refinement",
+      "description": "Generate at least 5 refined YouTube search queries for the company or product, using specific keywords. Each query must be distinct and designed to maximize relevant results."
+    },
+    {
+      "id": "youtube_analysis",
+      "description": "Search for 4 videos (2 advertisements, 2 sponsored videos) using refined queries. Analyze video retention, watch times, likes, dislikes, comments, and timestamps with the highest retention percentages. Provide a full breakdown of retention patterns, comparing retention hotspots."
+    },
+    {
+      "id": "reddit_analysis",
+      "description": "Analyze subreddit discussions with metrics like the total number of posts, comments per post, upvotes, and sentiment polarity. Identify common pain points or praises with percentages of mentions and recurring keywords."
+    },
+    {
+      "id": "trustpilot_analysis",
+      "description": "Review TrustPilot feedback to calculate satisfaction rates, percentage breakdown of review types, and common trends. Compare the company’s ratings with industry averages and highlight strengths or weaknesses numerically."
+    },
+    {
+      "id": "ad_storyline",
+      "description": "Develop a storyline for a new ad campaign based on data insights. Use timestamps from YouTube retention, pain points from Reddit, and numerical claims from TrustPilot to make the ad relatable and impactful."
+    }
+  ],
+  "process": [
+    {
+      "step": 1,
+      "action": "Search YouTube for videos.",
+      "instructions": [
+        "Generate 5 specific search queries like '[company name] ad 2024', '[product name] sponsored review', '[company name] best commercial', etc.",
+        "Use search_youtube to find relevant videos.",
+        "Use scrape_yt to extract and analyze audience retention graphs, engagement stats, timestamps with highest retention percentages, and engagement comparisons."
+      ]
+    },
+    {
+      "step": 2,
+      "action": "Analyze Reddit data.",
+      "instructions": [
+        "Search for subreddit posts related to the company or product.",
+        "Quantify total posts, average upvotes, sentiment polarity (e.g., 70% positive), and frequently mentioned phrases or themes (e.g., 'fast delivery' mentioned in 25% of posts).",
+        "Highlight recurring complaints or praises with percentages."
+      ]
+    },
+    {
+      "step": 3,
+      "action": "Analyze TrustPilot reviews.",
+      "instructions": [
+        "Calculate the company’s average rating, breakdown of review types (e.g., 30% positive, 50% neutral, 20% negative), and comparison with competitors.",
+        "Highlight recurring feedback themes numerically (e.g., 'poor customer service' mentioned in 18% of reviews)."
+      ]
+    },
+    {
+      "step": 4,
+      "action": "Propose ad improvements.",
+      "instructions": [
+        "Use retention hotspots from YouTube data to structure the ad.",
+        "Address user pain points identified in Reddit and TrustPilot reviews.",
+        "Integrate precise metrics (e.g., '89% of users recommend X') to build trust."
+      ]
+    }
+  ],
+  "response_structure": {
+    "question": "The input question you must answer.",
+    "thought": "Detailed reasoning behind your approach.",
+    "action": "Action taken, specifying the tool used.",
+    "action_input": "Input provided for the action.",
+    "observation": "Result of the action.",
+    "final_answer": {
+      "query_suggestions": [
+        "List of 5 refined YouTube search queries."
+      ],
+      "youtube": {
+        "videos": [
+          {
+            "title": "Video title",
+            "url": "Video URL",
+            "metrics": {
+              "views": "Number of views",
+              "likes": "Number of likes",
+              "dislikes": "Number of dislikes",
+              "comments": "Number of comments",
+              "retention_hotspots": [
+                {
+                  "time": "Timestamp (e.g., 2:10)",
+                  "retention_percentage": "Percentage of audience retained."
+                }
+              ],
+              "watch_time_analysis": {
+                "average_watch_time": "Average watch time in minutes/seconds.",
+                "completion_rate": "Percentage of viewers who finish the video."
+              }
+            }
+          }
+        ],
+        "engagement_comparison": "Comparative analysis of engagement metrics across videos."
+      },
+      "reddit": {
+        "total_posts": "Total number of posts mentioning the company or product.",
+        "average_upvotes": "Average upvotes per post.",
+        "common_themes": [
+          {
+            "theme": "Recurring theme or complaint",
+            "percentage_mentions": "Percentage of posts mentioning this theme."
+          }
+        ],
+        "sentiment_breakdown": {
+          "positive": "Percentage of posts with positive sentiment.",
+          "negative": "Percentage of posts with negative sentiment."
+        }
+      },
+      "trustpilot": {
+        "average_rating": "Company's average rating.",
+        "review_distribution": {
+          "positive": "Percentage of positive reviews.",
+          "neutral": "Percentage of neutral reviews.",
+          "negative": "Percentage of negative reviews."
+        },
+        "common_feedback": [
+          {
+            "feedback": "Specific praise or complaint",
+            "percentage_mentions": "Percentage of reviews mentioning this."
+          }
+        ],
+        "industry_comparison": "How the company’s rating compares to competitors."
+      },
+      "ad_storyline": {
+        "hook": "Catchy opening line based on insights.",
+        "main_message": "Key points addressing user pain points and leveraging strengths.",
+        "data_integration": "Numerical data used in the ad to build credibility (e.g., '89% customer satisfaction')."
+      }
+    }
+  }
+}""",
         ),
         MessagesPlaceholder(variable_name="chat_history"),
         ("user", "User: {input}"),
