@@ -10,5 +10,5 @@ langchain-google-genai==2.0.9
 langchain==0.3.14
 yt-dlp==2025.1.15
 webvtt-py==0.5.1
-numpy==2.2.2
+numpy
 astrapy==1.5.2
